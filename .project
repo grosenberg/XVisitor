@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+	<name>XVisitor</name>
+	<comment></comment>
+	<projects>
+	</projects>
+	<buildSpec>
+		<buildCommand>
+			<name>net.certiv.antlrdt4.xv.core.builder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+		<buildCommand>
+			<name>net.certiv.antlrdt4.st.core.builder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+		<buildCommand>
+			<name>net.certiv.antlrdt4.core.builder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+		<buildCommand>
+			<name>org.eclipse.jdt.core.javabuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+		<buildCommand>
+			<name>org.eclipse.m2e.core.maven2Builder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+	</buildSpec>
+	<natures>
+		<nature>org.eclipse.jdt.core.javanature</nature>
+		<nature>org.eclipse.m2e.core.maven2Nature</nature>
+		<nature>net.certiv.antlrdt4.core.nature</nature>
+		<nature>net.certiv.antlrdt4.st.core.nature</nature>
+		<nature>net.certiv.antlrdt4.xv.core.nature</nature>
+	</natures>
+</projectDescription>

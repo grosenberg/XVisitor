@@ -1,0 +1,135 @@
+/*******************************************************************************
+ * Copyright (c) 2010-2016 Gerald Rosenberg. All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the standard 3-clause BSD License.  A copy of the License
+ * is provided with this distribution in the License.txt file.
+ *******************************************************************************/
+VisitorTemplate(model) ::= <<
+<fileHeader(model.sourceFileName, model.version)>
+<model.header>
+
+import java.util.List;
+import org.antlr.v4.runtime.tree.ParseTree;
+import net.certiv.antlr.runtime.xvisitor.Processor;
+import net.certiv.antlr.runtime.xvisitor.xpath.EType;
+
+<visitorBody(model)>
+>>
+
+fileHeader(sourceFileName, version) ::= <<
+//
+// Generated from <sourceFileName; format="java-escape">
+// by ANTLR-XVisitor <version>
+//
+>>
+
+visitorBody(model) ::= <<
+@SuppressWarnings({"all", "warnings", "unchecked", "unused", "cast"})
+public class <model.grammarClass> extends <model.superClass> {
+
+<listTokens(model.tokens)>
+
+<listRules(model.rules)>
+
+	public <model.grammarClass>(ParseTree tree) {
+		super(tree);
+		init();
+	}
+
+	/** Entry point for finding all matches of the defined XPaths in the parse tree */
+	@Override
+	public void findAll() {
+		super.findAll();
+	}
+
+	/**
+	 * Entry point for finding all matches of a set of one or more named XPaths in the parse tree. The name of an XPath
+	 * is the rulename used in the tree grammar to define the XPath.
+	 */
+	@Override
+	public void find(String... names) {
+		super.find(names);
+	}
+
+	/** Change the parse tree to match against. Implicitly performs a reset. */
+	@Override
+	public void setNewParseTree(ParseTree tree) {
+		super.setNewParseTree(tree);
+	}
+
+	/** Clears state information developed in a prior find operation. */
+	@Override
+	public void reset() {
+		super.reset();
+	}
+
+	protected String[] getTokenNames() {
+		return tokenNames;
+	}
+
+	protected String[] getRuleNames() {
+		return ruleNames;
+	}
+
+<rulesInit(model)>
+
+<actionBlocks(model)>
+
+<if(model.members)>
+<model.members>
+<endif>
+}
+>>
+
+listTokens(tokens) ::= <<
+	public static final String[] tokenNames = {
+		<tokens.keys:{r|"<r>"}; wrap, anchor, separator = ", ">
+	};
+>>
+
+listRules(rules) ::= <<
+	public static final String[] ruleNames = {
+		<rules.keys:{r|"<r>"}; wrap, anchor, separator = ", ">
+	};
+>>
+
+rulesInit(model) ::= <<
+<if(model.paths)>
+	private void init() {
+		mainRule("<model.mainRule>");
+
+		<model.paths.keys, model.paths.values:{ruleName, xpathList|
+		<addRuleElements(ruleName, xpathList)>}; separator = "\n">
+	}
+<endif>
+>>
+
+addRuleElements(ruleName, xpathList) ::= <<
+<if(xpathList)>
+	createPathSpec("<ruleName>");
+	<xpathList:{element|
+	addElement(<element.typeStr>, <element.any>, <element.invert>, "<element.ident>", <element.value>); }; separator = "\n">
+	completePathSpec(); <endif>
+>>
+
+
+actionBlocks(model) ::= <<
+<if(model.actionBlocks)>
+	@Override
+	public void executeActionBlock(String name) {
+		switch (name) {
+		<model.actionBlocks.keys:{ruleName|
+			case "<ruleName>":
+				<ruleName>();
+				break;}; separator = "\n">
+		}
+	}
+
+<model.actionBlocks.keys, model.actionBlocks.values:{ruleName, codeBlock |
+	private void <ruleName>() {
+		<codeBlock>
+	\}
+}; separator = "\n">
+<endif>
+>>
