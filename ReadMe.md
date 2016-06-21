@@ -2,13 +2,15 @@
 
 A tool for generating customized Antlr4 parse-trees visitors using grammar-style definitions.
 
-[Documentation](http://www.certiv.net/projects/xvisitor.html). Antlr-standard BSD License.  
+[Documentation](http://www.certiv.net/projects/xvisitor.html).
+
+Antlr-standard BSD License.  
 
 #### Summary
 
 XVisitor enables multiple XPath-styled probes to be evaluated in parallel against the parse-tree.  When any XPath is matched, actions defined in the grammar specific to that XPath are invoked.  Actions for either or both 'onEntry' and 'onExit' states can be defined.  Consistent with standard Antlr grammars, actions are implemented using target language code.  Token and rule '$'-styled references give actions direct access to the currently matched context and token attributes.
 
-#### Benefits
+#### Features
 
 * Natural order of results:
 	* the XPath match actions are invoked in natural (parse-tree) order by the visitor
@@ -25,11 +27,7 @@ XVisitor enables multiple XPath-styled probes to be evaluated in parallel agains
 	* parse-tree branches that cannot be matched are skipped [TBI]
 	
 
-#### Dependencies
-
-* antlr-4.5.3-complete.jar
-
-#### Example Visitor Grammar {#example}
+#### Example Visitor Grammar 
 
 The following grammar will generate an outline listing of select nodes in a parse-tree generated using the [ANTLRv4](https://github.com/antlr/grammars-v4/tree/master/antlr4) grammar.
 
