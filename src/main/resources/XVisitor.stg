@@ -20,7 +20,7 @@ import net.certiv.antlr.runtime.xvisitor.xpath.EType;
 fileHeader(sourceFileName, version) ::= <<
 //
 // Generated from <sourceFileName; format="java-escape">
-// by ANTLR-XVisitor <version>
+// by XVisitor <version>
 //
 >>
 
@@ -30,7 +30,11 @@ public class <model.grammarClass> extends <model.superClass> {
 
 <listTokens(model.tokens)>
 
+<listTokenIndexes(model.tokens)>
+
 <listRules(model.rules)>
+
+<listRuleIndexes(model.rules)>
 
 	public <model.grammarClass>(ParseTree tree) {
 		super(tree);
@@ -92,6 +96,16 @@ listRules(rules) ::= <<
 	public static final String[] ruleNames = {
 		<rules.keys:{r|"<r>"}; wrap, anchor, separator = ", ">
 	};
+>>
+
+listTokenIndexes(tokens) ::= <<
+	public static final int
+		<rest(tokens.keys):{r|<r> = <i>}; wrap, anchor, separator = ", ">;
+>>
+
+listRuleIndexes(rules) ::= <<
+	public static final int
+		<rules.keys:{r|<r> = <i0; format="1000">}; wrap, anchor, separator = ", ">;
 >>
 
 rulesInit(model) ::= <<

@@ -73,9 +73,9 @@ public abstract class ProcessorBase extends ParseTreeWalker implements ParseTree
 
 	/**
 	 * Returns a list of parse tree path nodes evaluated in the current path. By default, this is
-	 * just the non-wildcard'd nodes, <i>i.e.</i>, just the nodes symbolically identified in the rule
-	 * path specification. If {@link Processor#keepAllPathContexts(boolean keep) is set, then all
-	 * path nodes are recorded, and the result will be equivalent to Processor#ancestors()}.
+	 * just the non-wildcard'd nodes, <i>i.e.</i>, just the nodes symbolically identified in the
+	 * rule path specification. If {@link Processor#keepAllPathContexts(boolean keep) is set, then
+	 * all path nodes are recorded, and the result will be equivalent to Processor#ancestors()}.
 	 */
 	public List<ParseTree> pathNodes() {
 		return currentPathNodeList;
@@ -94,10 +94,88 @@ public abstract class ProcessorBase extends ParseTreeWalker implements ParseTree
 	 */
 	public List<ParseTree> ancestors() {
 		List<ParseTree> ancList = new ArrayList<>();
-		for (ParseTree parent = lastPathNode(); parent != null; parent = lastPathNode()) {
+		ParseTree parent = lastPathNode();
+		while (parent != null) {
 			ancList.add(parent);
+			parent = parent.getParent();
 		}
 		return Collections.unmodifiableList(ancList);
+	}
+
+	/**
+	 * Returns whether a parse tree node of the given ruleIndex corresponding types exists as an
+	 * ancestor of the current node.
+	 */
+	public boolean hasAncestor(int... ruleIndexes) {
+		if (ruleIndexes.length == 0) return false;
+		List<ParseTree> ancestors = ancestors();
+		// only the first entry might not be a rule context
+		for (int idx = ancestors.get(0) instanceof ParserRuleContext ? 0 : 1; idx < ancestors.size(); idx++) {
+			ParserRuleContext node = (ParserRuleContext) ancestors.get(idx);
+			for (int rdx : ruleIndexes) {
+				// rules are always at ruleIndex + 1000
+				if (node.getRuleIndex() == rdx - 1000) return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Returns whether the current node exists before a sibling parse tree node of any of the given
+	 * ruleIndex corresponding types.
+	 */
+	public boolean beforeSibling(int... indexes) {
+		ParseTree node = lastPathNode();
+		ParseTree parent = node.getParent();
+		if (parent != null) {
+			int dot = childIndexOf(parent, node);
+			if (dot > -1) {
+				for (int idx = dot + 1; idx < parent.getChildCount(); idx++) {
+					ParseTree child = parent.getChild(idx);
+					int childIdx = typeIdx(child);
+					for (int rdx : indexes) {
+						if (childIdx == rdx) return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Returns whether the current node exists after a sibling parse tree node of any of the given
+	 * ruleIndex corresponding types.
+	 */
+	public boolean afterSibling(int... indexes) {
+		ParseTree node = lastPathNode();
+		ParseTree parent = node.getParent();
+		if (parent != null) {
+			int dot = childIndexOf(parent, node);
+			if (dot > -1) {
+				for (int idx = 0; idx < dot - 1; idx++) {
+					ParseTree child = parent.getChild(idx);
+					int childIdx = typeIdx(child);
+					for (int rdx : indexes) {
+						if (childIdx == rdx) return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+	private int childIndexOf(ParseTree parent, ParseTree child) {
+		for (int idx = 0; idx < parent.getChildCount(); idx++) {
+			if (parent.getChild(idx).equals(child)) return idx;
+		}
+		return -1;
+	}
+
+	private int typeIdx(ParseTree node) {
+		if (node instanceof TerminalNode) {
+			return ((TerminalNode) node).getSymbol().getType();
+		}
+		return ((ParserRuleContext) node).getRuleIndex() + 1000;
 	}
 
 	/**

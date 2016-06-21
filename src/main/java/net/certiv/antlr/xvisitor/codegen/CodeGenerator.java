@@ -18,7 +18,7 @@ import net.certiv.antlr.xvisitor.ErrorType;
 
 public class CodeGenerator {
 
-	public static final String TEMPLATE_ROOT = "net/certiv/antlr/xvisitor/codegen";
+	public static final String TEMPLATE_ROOT = "/";
 	public static final String TEMPLATE_NAME = "XVisitor.stg";
 
 	private CodeGenModel model;
@@ -30,7 +30,9 @@ public class CodeGenerator {
 	public void generate() {
 		StringBuilder result = new StringBuilder();
 
-		STGroup group = new STGroupFile(TEMPLATE_ROOT + "/" + TEMPLATE_NAME);
+		STGroup group = new STGroupFile(TEMPLATE_ROOT + TEMPLATE_NAME);
+		group.registerRenderer(Integer.class, new IndexOffsetRenderer());
+
 		ST st = group.getInstanceOf("VisitorTemplate");
 		st.add("model", model);
 		result.append(st.render(72));
