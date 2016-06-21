@@ -82,7 +82,9 @@ public abstract class ProcessorBase extends ParseTreeWalker implements ParseTree
 	}
 
 	/**
-	 * Returns the current context
+	 * Returns the current context node. All path nodes are type ParseTree. The last path node may
+	 * be an instance of either a TerminalNode or a ParserRuleContext. All nodes in the parent chain
+	 * starting from the last path node will be instances of ParserRuleContext.
 	 */
 	public ParseTree lastPathNode() {
 		return currentPathNodeList.get(0);
@@ -109,8 +111,8 @@ public abstract class ProcessorBase extends ParseTreeWalker implements ParseTree
 	public boolean hasAncestor(int... ruleIndexes) {
 		if (ruleIndexes.length == 0) return false;
 		List<ParseTree> ancestors = ancestors();
-		// only the first entry might not be a rule context
-		for (int idx = ancestors.get(0) instanceof ParserRuleContext ? 0 : 1; idx < ancestors.size(); idx++) {
+		// the first entry is the current node; so, not an ancestor by definition
+		for (int idx = 1; idx < ancestors.size(); idx++) {
 			ParserRuleContext node = (ParserRuleContext) ancestors.get(idx);
 			for (int rdx : ruleIndexes) {
 				// rules are always at ruleIndex + 1000
