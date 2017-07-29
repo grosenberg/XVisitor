@@ -19,8 +19,8 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.antlr.v4.runtime.ANTLRFileStream;
 import org.antlr.v4.runtime.CharStream;
+import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.tree.ErrorNode;
@@ -98,10 +98,11 @@ public class Tool extends ToolBase {
 	}
 
 	/**
-	 * Create an instance of the tool configured using command-line styled arguments and then
-	 * execute for file generation.
+	 * Create an instance of the tool configured using command-line styled arguments
+	 * and then execute for file generation.
 	 * 
-	 * @param args command-line styled arguments
+	 * @param args
+	 *            command-line styled arguments
 	 */
 	public Tool(String[] args) {
 		this();
@@ -112,7 +113,8 @@ public class Tool extends ToolBase {
 	/**
 	 * Configure the tool using command-line styled arguments.
 	 * 
-	 * @param args command-line styled arguments
+	 * @param args
+	 *            command-line styled arguments
 	 * @return true iff the command-line styled arguments are valid
 	 */
 	public boolean processFlags(String[] args) {
@@ -234,7 +236,7 @@ public class Tool extends ToolBase {
 		if (!file.exists()) {
 			throw new IOException("source grammar does not exist: " + filename);
 		}
-		CharStream input = new ANTLRFileStream(filename);
+		CharStream input = CharStreams.fromFileName(filename);
 		XVisitorLexer lexer = new XVisitorLexer(input);
 		CommonTokenStream tokens = new CommonTokenStream(lexer);
 		XVisitorParser parser = new XVisitorParser(tokens);
@@ -276,14 +278,16 @@ public class Tool extends ToolBase {
 	}
 
 	/**
-	 * This method is used by all code generators to create new output files. If the outputDir set
-	 * by -o is not present it will be created. The final filename is sensitive to the output
-	 * directory and the directory where the grammar file was found. If -o is /tmp and the original
-	 * grammar file was foo/t.g4 then output files go in /tmp/foo. The output dir -o spec takes
-	 * precedence if it's absolute. E.g., if the grammar file dir is absolute the output dir is
-	 * given precendence. "-o /tmp /usr/lib/t.g4" results in "/tmp/T.java" as output (assuming t.g4
-	 * holds T.java). If no -o is specified, then just write to the directory where the grammar file
-	 * was found. If outputDirectory==null then write a Literal.
+	 * This method is used by all code generators to create new output files. If the
+	 * outputDir set by -o is not present it will be created. The final filename is
+	 * sensitive to the output directory and the directory where the grammar file
+	 * was found. If -o is /tmp and the original grammar file was foo/t.g4 then
+	 * output files go in /tmp/foo. The output dir -o spec takes precedence if it's
+	 * absolute. E.g., if the grammar file dir is absolute the output dir is given
+	 * precendence. "-o /tmp /usr/lib/t.g4" results in "/tmp/T.java" as output
+	 * (assuming t.g4 holds T.java). If no -o is specified, then just write to the
+	 * directory where the grammar file was found. If outputDirectory==null then
+	 * write a Literal.
 	 */
 	public Writer getOutputFileWriter(CodeGenModel model) throws IOException {
 		if (outputDirectory == null) {
@@ -306,11 +310,13 @@ public class Tool extends ToolBase {
 	}
 
 	/**
-	 * Return the location where ANTLR will generate output files for a given file. This is a base
-	 * directory and output files will be relative to here in some cases such as when -o option is
-	 * used and input files are given relative to the input directory.
+	 * Return the location where ANTLR will generate output files for a given file.
+	 * This is a base directory and output files will be relative to here in some
+	 * cases such as when -o option is used and input files are given relative to
+	 * the input directory.
 	 * 
-	 * @param fileNameWithPath pathContexts to input source
+	 * @param fileNameWithPath
+	 *            pathContexts to input source
 	 */
 	private File getOutputDirectory(String fileNameWithPath) {
 		File file = new File(fileNameWithPath);
@@ -343,9 +349,11 @@ public class Tool extends ToolBase {
 		//
 		// // Some files are given to us without a PATH but should should
 		// // still be written to the output directory in the relative pathContexts of
-		// // the output directory. The file directory is either the set of sub directories
+		// // the output directory. The file directory is either the set of sub
+		//////////////////////////////////////////// directories
 		// // or just or the relative pathContexts recorded for the parent grammar. This
-		// // means that when we write the tokens files, or the .java files for imported grammars
+		// // means that when we write the tokens files, or the .java files for imported
+		//////////////////////////////////////////// grammars
 		// // that we will write them in the correct place.
 		// fileNameWithPath = fileNameWithPath.replaceAll("\\\\", "/");
 		// if (fileNameWithPath.lastIndexOf('/') == -1) {
@@ -355,7 +363,8 @@ public class Tool extends ToolBase {
 		// fileDirectory = ".";
 		//
 		// } else {
-		// fileDirectory = fileNameWithPath.substring(0, fileNameWithPath.lastIndexOf('/'));
+		// fileDirectory = fileNameWithPath.substring(0,
+		//////////////////////////////////////////// fileNameWithPath.lastIndexOf('/'));
 		// }
 		// if (haveOutputDir) {
 		// // -o /tmp /var/lib/t.g4 => /tmp/T.java

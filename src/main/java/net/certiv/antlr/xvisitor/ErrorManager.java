@@ -26,7 +26,6 @@ import java.util.Set;
 
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Token;
-import org.antlr.v4.tool.ErrorSeverity;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 import org.stringtemplate.v4.STGroupFile;
@@ -37,6 +36,7 @@ import net.certiv.antlr.xvisitor.Messages.GrammarSyntaxMessage;
 import net.certiv.antlr.xvisitor.Messages.ToolMessage;
 
 public class ErrorManager {
+
 	public static final String FORMATS_DIR = "org/antlr/v4/tool/templates/messages/formats/";
 
 	public IToolListener tool;
@@ -98,7 +98,10 @@ public class ErrorManager {
 		return reportST;
 	}
 
-	/** Return a StringTemplate that refers to the current format used for emitting messages. */
+	/**
+	 * Return a StringTemplate that refers to the current format used for emitting
+	 * messages.
+	 */
 	public ST getLocationFormat() {
 		return format.getInstanceOf("location");
 	}
@@ -138,11 +141,13 @@ public class ErrorManager {
 	}
 
 	/**
-	 * Raise a predefined message with some number of paramters for the StringTemplate but for which
-	 * there is no location information possible.
+	 * Raise a predefined message with some number of paramters for the
+	 * StringTemplate but for which there is no location information possible.
 	 * 
-	 * @param errorType The Message Descriptor
-	 * @param args The arguments to pass to the StringTemplate
+	 * @param errorType
+	 *            The Message Descriptor
+	 * @param args
+	 *            The arguments to pass to the StringTemplate
 	 */
 	public void toolError(ErrorType errorType, Object... args) {
 		toolError(errorType, null, args);
@@ -188,7 +193,7 @@ public class ErrorManager {
 
 	// S U P P O R T C O D E
 
-	@SuppressWarnings({ "fallthrough", "incomplete-switch" })
+	@SuppressWarnings("incomplete-switch")
 	public void emit(ErrorType etype, Messages msg) {
 		switch (etype.severity) {
 			case WARNING_ONE_OFF:
@@ -208,8 +213,8 @@ public class ErrorManager {
 	}
 
 	/**
-	 * The format gets reset either from the Tool if the user supplied a command line option to that
-	 * effect Otherwise we just use the default "antlr".
+	 * The format gets reset either from the Tool if the user supplied a command
+	 * line option to that effect Otherwise we just use the default "antlr".
 	 */
 	public void setFormat(String formatName) {
 		this.formatName = formatName;
@@ -264,7 +269,8 @@ public class ErrorManager {
 		return ok;
 	}
 
-	// If there are errors during ErrorManager init, we have no choice but to go to System.err.
+	// If there are errors during ErrorManager init, we have no choice but to go to
+	// System.err.
 	static void rawError(String msg) {
 		System.err.println(msg);
 	}
@@ -290,7 +296,8 @@ public class ErrorManager {
 	}
 
 	public static void panic() {
-		// can't call tool.panic since there may be multiple tools; just one error manager
+		// can't call tool.panic since there may be multiple tools; just one error
+		// manager
 		throw new Error("ANTLR ErrorManager panic");
 	}
 }

@@ -7,8 +7,8 @@
  *******************************************************************************/
 package net.certiv.antlr.xvisitor.parser;
 
-import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CharStream;
+import org.antlr.v4.runtime.CodePointCharStream;
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.misc.Interval;
 
@@ -19,16 +19,17 @@ public abstract class LexerAdaptor extends Lexer {
 	}
 
 	/**
-	 * Predicate qualifier for default mode line comments - necessary to distinguish from the 'any' separator
+	 * Predicate qualifier for default mode line comments - necessary to distinguish
+	 * from the 'any' separator
 	 * 
 	 * @return true if line comment allowed
 	 */
 	public boolean lcPrefix() {
-		ANTLRInputStream ais = (ANTLRInputStream) _input;
-		int offset = ais.index();
+		CodePointCharStream cs = (CodePointCharStream) _input;
+		int offset = cs.index();
 		boolean ws = false;
 		for (int dot = -1; dot > -offset; dot--) {
-			char c = (char) ais.LA(dot);
+			char c = (char) cs.LA(dot);
 			switch (c) {
 				case '\t':
 				case '\r':
@@ -45,16 +46,16 @@ public abstract class LexerAdaptor extends Lexer {
 	}
 
 	/**
-	 * Predicate qualifier for default mode block comments - necessary to distinguish from the '/*' separator & wildcard
-	 * combination
+	 * Predicate qualifier for default mode block comments - necessary to
+	 * distinguish from the '/*' separator & wildcard combination
 	 * 
 	 * @return true if block comment allowed
 	 */
 	public boolean bcSuffix() {
-		ANTLRInputStream ais = (ANTLRInputStream) _input;
-		int offset = ais.index();
+		CodePointCharStream cs = (CodePointCharStream) _input;
+		int offset = cs.index();
 		Interval i = new Interval(offset, offset + 2);
-		String la = ais.getText(i);
+		String la = cs.getText(i);
 		if (la.equals("/*/")) return false;
 		return true;
 	}

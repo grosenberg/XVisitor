@@ -58,8 +58,7 @@ public abstract class Processor extends ProcessorBase {
 	 * visitor grammar. The argument names of XPath rules define the active subset. The remaining
 	 * rules are inactive and are not considered in the operation of the visitor.
 	 * 
-	 * @param names
-	 *        Names of the XPath rules to set as active
+	 * @param names Names of the XPath rules to set as active
 	 */
 	public void find(String... names) {
 		List<String> nameList = Arrays.asList(names);

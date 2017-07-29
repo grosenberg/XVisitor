@@ -22,7 +22,6 @@ import java.util.Arrays;
 
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Token;
-import org.antlr.v4.tool.Grammar;
 import org.stringtemplate.v4.ST;
 
 public class Messages {
@@ -37,7 +36,6 @@ public class Messages {
 	public String fileName;
 	public int line = -1;
 	public int charPosition = -1;
-	public Grammar g;
 	public Token offendingToken;
 
 	public Messages(ErrorType errorType) {

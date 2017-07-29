@@ -18,9 +18,7 @@
  */
 package net.certiv.antlr.xvisitor;
 
-import org.antlr.v4.Tool;
 import org.antlr.v4.runtime.Lexer;
-import org.antlr.v4.tool.ErrorSeverity;
 
 /**
  * A complex enumeration of all the error messages that the tool can issue.

@@ -105,8 +105,10 @@ public abstract class ProcessorBase extends ParseTreeWalker implements ParseTree
 	}
 
 	/**
-	 * Returns whether a parse tree node of the given ruleIndex corresponding types exists as an
-	 * ancestor of the current node.
+	 * Returns whether a parse tree node of any of the given ruleIndex corresponding types exists as
+	 * an ancestor of the current node. The rule indexes are defined as static constants in the
+	 * generated visitor. By convention, the constant names are the same as the names of the
+	 * corresponding grammar rules.
 	 */
 	public boolean hasAncestor(int... ruleIndexes) {
 		if (ruleIndexes.length == 0) return false;
