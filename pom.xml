@@ -32,7 +32,7 @@
 
 	<scm>
 		<url>https://github.com/grosenberg/xvisitor/tree/master</url>
-		<connection>scm:git:git://github.com/grosenberg/xvisitor.git</connection>
+		<connection>scm:git:https://github.com/grosenberg/xvisitor.git</connection>
 	</scm>
 
 	<developers>
@@ -123,13 +123,14 @@
 				<artifactId>maven-javadoc-plugin</artifactId>
 				<version>2.10.4</version>
 				<configuration>
+					<additionalparam>-Xdoclint:none</additionalparam>
 					<javadocVersion>1.7</javadocVersion>
 					<failOnError>false</failOnError>
 				</configuration>
 				<executions>
 					<execution>
 						<goals>
-							<goal>javadoc</goal>
+							<goal>jar</goal>
 						</goals>
 					</execution>
 				</executions>
@@ -188,6 +189,13 @@
 
 		<pluginManagement>
 			<plugins>
+
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-release-plugin</artifactId>
+					<version>2.5.3</version>
+				</plugin>
+
 				<!-- remove M2E warning complaining about usage of maven-enforcer-plugin 
 					in parent -->
 				<plugin>
