@@ -98,8 +98,10 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.5.1</version>
+				<version>3.6.1</version>
 				<configuration>
+					<fork>true</fork>
+					<executable>C:\Program Files\Java\jdk1.8\bin\javac.exe</executable>
 					<source>${jdk.version}</source>
 					<target>${jdk.version}</target>
 				</configuration>
@@ -194,6 +196,9 @@
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-release-plugin</artifactId>
 					<version>2.5.3</version>
+					<configuration>
+						<commitByProject>true</commitByProject>
+					</configuration>
 				</plugin>
 
 				<!-- remove M2E warning complaining about usage of maven-enforcer-plugin 
