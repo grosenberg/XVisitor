@@ -16,13 +16,15 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
  * OF SUCH DAMAGE.
  */
-package net.certiv.antlr.xvisitor;
+package net.certiv.antlr.xvisitor.tool;
 
 import java.util.Arrays;
 
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Token;
 import org.stringtemplate.v4.ST;
+
+import net.certiv.antlr.xvisitor.Tool;
 
 public class Messages {
 

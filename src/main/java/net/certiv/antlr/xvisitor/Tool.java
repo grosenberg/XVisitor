@@ -33,6 +33,9 @@ import net.certiv.antlr.xvisitor.codegen.ModelBuilder;
 import net.certiv.antlr.xvisitor.parser.ParserErrorListener;
 import net.certiv.antlr.xvisitor.parser.gen.XVisitorLexer;
 import net.certiv.antlr.xvisitor.parser.gen.XVisitorParser;
+import net.certiv.antlr.xvisitor.tool.ErrorType;
+import net.certiv.antlr.xvisitor.tool.Level;
+import net.certiv.antlr.xvisitor.tool.ToolBase;
 
 public class Tool extends ToolBase {
 

@@ -16,7 +16,7 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
  * OF SUCH DAMAGE.
  */
-package net.certiv.antlr.xvisitor;
+package net.certiv.antlr.xvisitor.tool;
 
 import java.io.File;
 import java.net.URL;
@@ -31,9 +31,9 @@ import org.stringtemplate.v4.STGroup;
 import org.stringtemplate.v4.STGroupFile;
 import org.stringtemplate.v4.misc.ErrorBuffer;
 
-import net.certiv.antlr.xvisitor.Messages.GrammarSemanticsMessage;
-import net.certiv.antlr.xvisitor.Messages.GrammarSyntaxMessage;
-import net.certiv.antlr.xvisitor.Messages.ToolMessage;
+import net.certiv.antlr.xvisitor.tool.Messages.GrammarSemanticsMessage;
+import net.certiv.antlr.xvisitor.tool.Messages.GrammarSyntaxMessage;
+import net.certiv.antlr.xvisitor.tool.Messages.ToolMessage;
 
 public class ErrorManager {
 

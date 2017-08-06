@@ -1,4 +1,4 @@
-package net.certiv.antlr.xvisitor;
+package net.certiv.antlr.xvisitor.tool;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;

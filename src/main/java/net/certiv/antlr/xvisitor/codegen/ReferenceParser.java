@@ -17,9 +17,10 @@ import java.util.regex.Pattern;
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.TokenStream;
+import org.antlr.v4.runtime.Vocabulary;
 
 import net.certiv.antlr.runtime.xvisitor.util.Strings;
-import net.certiv.antlr.xvisitor.ErrorType;
+import net.certiv.antlr.xvisitor.tool.ErrorType;
 
 public class ReferenceParser {
 
@@ -54,12 +55,16 @@ public class ReferenceParser {
 		return true;
 	}
 
-	@SuppressWarnings("deprecation")
 	public boolean loadTokenNames() {
-		int idx = 0;
 		model.tokens = new LinkedHashMap<>();
-		for (String name : model.refParser.getTokenNames()) {
-			model.tokens.put(name, idx++);
+		Vocabulary vocab = model.refParser.getVocabulary();
+		int max = vocab.getMaxTokenType();
+		for (int tt = 0; tt <= max; tt++) {
+			String name = vocab.getSymbolicName(tt);
+			if (name == null || name.isEmpty()) {
+				name  = "<INVALID>";
+			}
+			model.tokens.put(name, tt);
 		}
 		model.tool.getErrMgr().info("Tokens: " + model.tokens.toString());
 		return true;
@@ -104,8 +109,9 @@ public class ReferenceParser {
 	}
 
 	/*
-	 * Try to instantiate an inner class context of the parser. ClassNotFound, NoSuchMethod, and
-	 * ClassCast exceptions are silently reported by returning a null value.
+	 * Try to instantiate an inner class context of the parser. ClassNotFound,
+	 * NoSuchMethod, and ClassCast exceptions are silently reported by returning a
+	 * null value.
 	 */
 	private ParserRuleContext instantiate(String fqPackage, String contextName) throws IOException {
 		try {

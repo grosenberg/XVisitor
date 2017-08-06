@@ -22,9 +22,9 @@ import net.certiv.antlr.runtime.xvisitor.xpath.LiteralElement;
 import net.certiv.antlr.runtime.xvisitor.xpath.RuleElement;
 import net.certiv.antlr.runtime.xvisitor.xpath.TokenElement;
 import net.certiv.antlr.runtime.xvisitor.xpath.WildcardElement;
-import net.certiv.antlr.xvisitor.ErrorType;
-import net.certiv.antlr.xvisitor.ITool;
 import net.certiv.antlr.xvisitor.Tool;
+import net.certiv.antlr.xvisitor.tool.ErrorType;
+import net.certiv.antlr.xvisitor.tool.ITool;
 
 public class CodeGenModel {
 

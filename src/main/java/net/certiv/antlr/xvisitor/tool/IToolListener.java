@@ -16,7 +16,7 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
  * OF SUCH DAMAGE.
  */
-package net.certiv.antlr.xvisitor;
+package net.certiv.antlr.xvisitor.tool;
 
 /**
  * Defines behavior of object able to handle error messages from ANTLR including both tool errors

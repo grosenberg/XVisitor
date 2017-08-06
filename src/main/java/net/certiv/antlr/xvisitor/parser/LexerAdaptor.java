@@ -8,7 +8,6 @@
 package net.certiv.antlr.xvisitor.parser;
 
 import org.antlr.v4.runtime.CharStream;
-import org.antlr.v4.runtime.CodePointCharStream;
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.misc.Interval;
 
@@ -25,11 +24,10 @@ public abstract class LexerAdaptor extends Lexer {
 	 * @return true if line comment allowed
 	 */
 	public boolean lcPrefix() {
-		CodePointCharStream cs = (CodePointCharStream) _input;
-		int offset = cs.index();
+		int offset = _input.index();
 		boolean ws = false;
 		for (int dot = -1; dot > -offset; dot--) {
-			char c = (char) cs.LA(dot);
+			char c = (char) _input.LA(dot);
 			switch (c) {
 				case '\t':
 				case '\r':
@@ -52,11 +50,13 @@ public abstract class LexerAdaptor extends Lexer {
 	 * @return true if block comment allowed
 	 */
 	public boolean bcSuffix() {
-		CodePointCharStream cs = (CodePointCharStream) _input;
-		int offset = cs.index();
-		Interval i = new Interval(offset, offset + 2);
-		String la = cs.getText(i);
-		if (la.equals("/*/")) return false;
+		int size = _input.size();
+		int offset = _input.index();
+		if (size > offset + 2) {
+			Interval i = new Interval(offset, offset + 2);
+			String la = _input.getText(i);
+			if (la.equals("/*/")) return false;
+		}
 		return true;
 	}
 }

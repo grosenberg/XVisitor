@@ -1,4 +1,4 @@
-package net.certiv.antlr.xvisitor;
+package net.certiv.antlr.xvisitor.tool;
 
 /**
  * Abstracts away the definition of Message severity and the text that should

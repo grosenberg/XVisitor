@@ -16,9 +16,11 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
  * OF SUCH DAMAGE.
  */
-package net.certiv.antlr.xvisitor;
+package net.certiv.antlr.xvisitor.tool;
 
 import org.antlr.v4.runtime.Lexer;
+
+import net.certiv.antlr.xvisitor.Tool;
 
 /**
  * A complex enumeration of all the error messages that the tool can issue.

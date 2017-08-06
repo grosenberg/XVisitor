@@ -54,11 +54,11 @@ DOC_COMMENT
 	;
 
 BLOCK_COMMENT
-	:	{ bcSuffix() }? BlockComment -> channel(HIDDEN)
+	:	/* { bcSuffix() }? */ BlockComment -> channel(HIDDEN)
 	;
 
 LINE_COMMENT
-	:	{ lcPrefix() }? LineComment -> channel(HIDDEN)
+	:	/* { lcPrefix() }? */ LineComment -> channel(HIDDEN)
 	;
 
 // -------

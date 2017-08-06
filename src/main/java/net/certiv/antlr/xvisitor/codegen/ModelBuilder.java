@@ -13,7 +13,6 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 
 import net.certiv.antlr.runtime.xvisitor.util.Reflect;
 import net.certiv.antlr.runtime.xvisitor.util.Strings;
-import net.certiv.antlr.xvisitor.ErrorType;
 import net.certiv.antlr.xvisitor.parser.gen.XVisitorParser.ActionBlockContext;
 import net.certiv.antlr.xvisitor.parser.gen.XVisitorParser.ActionContext;
 import net.certiv.antlr.xvisitor.parser.gen.XVisitorParser.GrammarSpecContext;
@@ -26,6 +25,7 @@ import net.certiv.antlr.xvisitor.parser.gen.XVisitorParser.WordContext;
 import net.certiv.antlr.xvisitor.parser.gen.XVisitorParser.XmainContext;
 import net.certiv.antlr.xvisitor.parser.gen.XVisitorParser.XpathContext;
 import net.certiv.antlr.xvisitor.parser.gen.XVisitorParser.XpathSpecContext;
+import net.certiv.antlr.xvisitor.tool.ErrorType;
 import net.certiv.antlr.xvisitor.parser.gen.XVisitorParserBaseVisitor;
 
 public class ModelBuilder extends XVisitorParserBaseVisitor<CodeGenModel> {
