@@ -78,8 +78,10 @@ public class CodeGenModel {
 	public String grammarClass;
 	public String members;
 
+	public String packages; // known to the classloader
+
 	public void update() {
-		sourceFileName = parser.getSourceName(); // ??
+		sourceFileName = parser.getSourceName();
 		grammarClass = grammarName + "Visitor";
 		grammarFileName = grammarClass + ".java";
 		version = Tool.VERSION;
@@ -90,6 +92,10 @@ public class CodeGenModel {
 		if (superClass == null) {
 			superClass = "Processor";
 		}
+	}
+
+	public String getPackages() {
+		return packages;
 	}
 
 	public String getSourceName() {
@@ -120,8 +126,8 @@ public class CodeGenModel {
 	}
 
 	/**
-	 * Returns the path segment name at the given prior number of segments from the last. If prior
-	 * is '0', returns the same segment as getLastContextName(). If prior references a non-existant
+	 * Returns the path segment name at the given prior number of segments from the last. If prior is
+	 * '0', returns the same segment as getLastContextName(). If prior references a non-existant
 	 * segment, returns the first segment name.
 	 */
 	public String getLastContextName(int prior) {

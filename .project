@@ -6,17 +6,12 @@
 	</projects>
 	<buildSpec>
 		<buildCommand>
-			<name>net.certiv.antlrdt4.xv.core.builder</name>
+			<name>net.certiv.antlrdt.core.builder</name>
 			<arguments>
 			</arguments>
 		</buildCommand>
 		<buildCommand>
-			<name>net.certiv.antlrdt4.st.core.builder</name>
-			<arguments>
-			</arguments>
-		</buildCommand>
-		<buildCommand>
-			<name>net.certiv.antlrdt4.core.builder</name>
+			<name>net.certiv.stdt.core.builder</name>
 			<arguments>
 			</arguments>
 		</buildCommand>
@@ -38,5 +33,7 @@
 		<nature>net.certiv.antlrdt4.core.nature</nature>
 		<nature>net.certiv.antlrdt4.st.core.nature</nature>
 		<nature>net.certiv.antlrdt4.xv.core.nature</nature>
+		<nature>net.certiv.stdt.core.nature</nature>
+		<nature>net.certiv.antlrdt.core.nature</nature>
 	</natures>
 </projectDescription>

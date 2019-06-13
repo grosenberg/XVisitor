@@ -1,11 +1,8 @@
 /*******************************************************************************
- * Copyright (c) 2010-2015 Gerald Rosenberg & others. All rights reserved. This program and the
- * accompanying materials are made available under the terms of the standard 3-clause BSD License. A
- * copy of the License is provided with this distribution in the License.txt file. <br>
- * 2014.03.26: First release level code <br>
- * 2014.08.26: Updates, add Tests support <br>
- * 2014.12.14: updated to 4.4, to log4j2, added errorlistener<br>
- * 2015.07.17: updated to 4.5.1
+ * Copyright (c) 2010-2017 Gerald Rosenberg & others. All rights reserved. 
+ * This program and the accompanying materials are made available under the 
+ * terms of the standard 3-clause BSD License. A copy of the License is 
+ * provided with this distribution in the License.txt file. 
  *******************************************************************************/
 package net.certiv.antlr.xvisitor;
 
@@ -17,6 +14,7 @@ import java.io.OutputStreamWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.antlr.v4.runtime.CharStream;
@@ -39,11 +37,12 @@ import net.certiv.antlr.xvisitor.tool.ToolBase;
 
 public class Tool extends ToolBase {
 
-	public static final String VERSION = "4.5.3";
+	// TODO: get actual version from class properties
+	public static final String VERSION = "4.7";
 	public static final String GRAMMAR_EXTENSION = ".xv";
 
 	public static enum OptionArgType {
-		NONE, // NONE implies boolean
+		NONE, // also boolean
 		STRING
 	}
 
@@ -88,9 +87,8 @@ public class Tool extends ToolBase {
 			xtree.exit(0);
 		}
 		boolean ok = xtree.processFlags(args);
-		if (!ok) {
-			xtree.exit(1);
-		}
+		if (!ok) xtree.exit(1);
+
 		xtree.genModel();
 		xtree.exit(0);
 	}
@@ -101,11 +99,10 @@ public class Tool extends ToolBase {
 	}
 
 	/**
-	 * Create an instance of the tool configured using command-line styled arguments
-	 * and then execute for file generation.
+	 * Create an instance of the tool configured using command-line styled arguments and then execute
+	 * for file generation.
 	 * 
-	 * @param args
-	 *            command-line styled arguments
+	 * @param args command-line styled arguments
 	 */
 	public Tool(String[] args) {
 		this();
@@ -116,8 +113,7 @@ public class Tool extends ToolBase {
 	/**
 	 * Configure the tool using command-line styled arguments.
 	 * 
-	 * @param args
-	 *            command-line styled arguments
+	 * @param args command-line styled arguments
 	 * @return true iff the command-line styled arguments are valid
 	 */
 	public boolean processFlags(String[] args) {
@@ -195,19 +191,23 @@ public class Tool extends ToolBase {
 			try {
 				tree = parser.grammarSpec();
 				if (tree == null || tree instanceof ErrorNode) {
-					errMgr.toolError(ErrorType.PARSE_ERROR, parser.getSourceName());
+					errMgr.toolError(ErrorType.PARSE_FAILURE, parser.getSourceName());
 					continue;
 				}
 			} catch (RecognitionException e) {
-				errMgr.toolError(ErrorType.PARSE_FAILURE, parser.getSourceName(), e);
+				errMgr.toolError(ErrorType.PARSE_RECOGNITION_ERROR, parser.getSourceName(), e);
 				continue;
 			}
+
+			// TODO: implement tree validator
+
 			CodeGenModel model = new CodeGenModel(this, parser, tree);
 			ModelBuilder builder = new ModelBuilder(model);
 			try {
 				builder.visit(tree);
 			} catch (Exception e) {
 				errMgr.toolError(ErrorType.MODEL_BUILD_FAILURE, parser.getSourceName(), e);
+				errMgr.toolError(ErrorType.CLASSLOAD_FAILURE, model.getPackages(), e);
 				return;
 			}
 			if (model.validates()) {
@@ -239,9 +239,11 @@ public class Tool extends ToolBase {
 		if (!file.exists()) {
 			throw new IOException("source grammar does not exist: " + filename);
 		}
+
 		CharStream input = CharStreams.fromFileName(filename);
 		XVisitorLexer lexer = new XVisitorLexer(input);
 		CommonTokenStream tokens = new CommonTokenStream(lexer);
+
 		XVisitorParser parser = new XVisitorParser(tokens);
 		parser.removeErrorListeners();
 		parser.addErrorListener(new ParserErrorListener());
@@ -275,22 +277,24 @@ public class Tool extends ToolBase {
 		this.grammarFiles = grammarFiles;
 	}
 
+	public void setGrammarFiles(String... grammarFiles) {
+		this.grammarFiles = Arrays.asList(grammarFiles);
+	}
+
 	public String getStringOutput() {
 		if (stringWriter != null) return stringWriter.toString();
 		return "";
 	}
 
 	/**
-	 * This method is used by all code generators to create new output files. If the
-	 * outputDir set by -o is not present it will be created. The final filename is
-	 * sensitive to the output directory and the directory where the grammar file
-	 * was found. If -o is /tmp and the original grammar file was foo/t.g4 then
-	 * output files go in /tmp/foo. The output dir -o spec takes precedence if it's
-	 * absolute. E.g., if the grammar file dir is absolute the output dir is given
-	 * precendence. "-o /tmp /usr/lib/t.g4" results in "/tmp/T.java" as output
-	 * (assuming t.g4 holds T.java). If no -o is specified, then just write to the
-	 * directory where the grammar file was found. If outputDirectory==null then
-	 * write a Literal.
+	 * This method is used by all code generators to create new output files. If the outputDir set by -o
+	 * is not present it will be created. The final filename is sensitive to the output directory and
+	 * the directory where the grammar file was found. If -o is /tmp and the original grammar file was
+	 * foo/t.g4 then output files go in /tmp/foo. The output dir -o spec takes precedence if it's
+	 * absolute. E.g., if the grammar file dir is absolute the output dir is given precendence. "-o /tmp
+	 * /usr/lib/t.g4" results in "/tmp/T.java" as output (assuming t.g4 holds T.java). If no -o is
+	 * specified, then just write to the directory where the grammar file was found. If
+	 * outputDirectory==null then write a Literal.
 	 */
 	public Writer getOutputFileWriter(CodeGenModel model) throws IOException {
 		if (outputDirectory == null) {
@@ -313,13 +317,11 @@ public class Tool extends ToolBase {
 	}
 
 	/**
-	 * Return the location where ANTLR will generate output files for a given file.
-	 * This is a base directory and output files will be relative to here in some
-	 * cases such as when -o option is used and input files are given relative to
-	 * the input directory.
+	 * Return the location where ANTLR will generate output files for a given file. This is a base
+	 * directory and output files will be relative to here in some cases such as when -o option is used
+	 * and input files are given relative to the input directory.
 	 * 
-	 * @param fileNameWithPath
-	 *            pathContexts to input source
+	 * @param fileNameWithPath pathContexts to input source
 	 */
 	private File getOutputDirectory(String fileNameWithPath) {
 		File file = new File(fileNameWithPath);
@@ -346,53 +348,6 @@ public class Tool extends ToolBase {
 			outputDir = fileDir;
 		}
 
-		////////////////////////////////////////////
-		//
-		// String fileDirectory;
-		//
-		// // Some files are given to us without a PATH but should should
-		// // still be written to the output directory in the relative pathContexts of
-		// // the output directory. The file directory is either the set of sub
-		//////////////////////////////////////////// directories
-		// // or just or the relative pathContexts recorded for the parent grammar. This
-		// // means that when we write the tokens files, or the .java files for imported
-		//////////////////////////////////////////// grammars
-		// // that we will write them in the correct place.
-		// fileNameWithPath = fileNameWithPath.replaceAll("\\\\", "/");
-		// if (fileNameWithPath.lastIndexOf('/') == -1) {
-		// // No pathContexts is included in the file name, so make the file
-		// // directory the same as the parent grammar (which might sitll be just ""
-		// // but when it is not, we will write the file in the correct place.
-		// fileDirectory = ".";
-		//
-		// } else {
-		// fileDirectory = fileNameWithPath.substring(0,
-		//////////////////////////////////////////// fileNameWithPath.lastIndexOf('/'));
-		// }
-		// if (haveOutputDir) {
-		// // -o /tmp /var/lib/t.g4 => /tmp/T.java
-		// // -o subdir/output /usr/lib/t.g4 => subdir/output/T.java
-		// // -o . /usr/lib/t.g4 => ./T.java
-		// if (fileDirectory != null && (new File(fileDirectory).isAbsolute() ||
-		// fileDirectory.startsWith("~"))) {
-		// // isAbsolute doesn't count this :(
-		// // somebody set the dir, it takes precendence; write new file there
-		// outputDir = new File(outputDirectory);
-		// } else {
-		// // -o /tmp subdir/t.g4 => /tmp/subdir/t.g4
-		// if (fileDirectory != null) {
-		// outputDir = new File(outputDirectory, fileDirectory);
-		// } else {
-		// outputDir = new File(outputDirectory);
-		// }
-		// }
-		// } else {
-		// // they didn't specify a -o dir so just write to location
-		// // where grammar is, absolute or relative, this will only happen
-		// // with command line invocation as build tools will always
-		// // supply an output directory.
-		// outputDir = new File(fileDirectory);
-		// }
 		return outputDir;
 	}
 

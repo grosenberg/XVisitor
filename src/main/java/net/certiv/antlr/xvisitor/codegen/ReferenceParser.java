@@ -19,6 +19,7 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.TokenStream;
 import org.antlr.v4.runtime.Vocabulary;
 
+import net.certiv.antlr.runtime.xvisitor.util.ClassUtil;
 import net.certiv.antlr.runtime.xvisitor.util.Strings;
 import net.certiv.antlr.xvisitor.tool.ErrorType;
 
@@ -39,7 +40,7 @@ public class ReferenceParser {
 			model.fqParserName = fqName(model.getPackageName(), model.getParserName());
 			model.refParser = instantiate(model.fqParserName);
 		} catch (IOException e) {
-			model.tool.getErrMgr().toolError(ErrorType.CANNOT_FIND_IMPORTED_GRAMMAR, model.fqParserName);
+			model.tool.getErrMgr().toolError(ErrorType.REFERENCE_PARSER_LOAD_FAILED, model.fqParserName, e);
 			return false;
 		}
 		return true;
@@ -62,7 +63,7 @@ public class ReferenceParser {
 		for (int tt = 0; tt <= max; tt++) {
 			String name = vocab.getSymbolicName(tt);
 			if (name == null || name.isEmpty()) {
-				name  = "<INVALID>";
+				name = "<INVALID>";
 			}
 			model.tokens.put(name, tt);
 		}
@@ -75,7 +76,7 @@ public class ReferenceParser {
 			ParserRuleContext ctxClass = instantiate(model.fqParserName, ctxName);
 			return ctxClass;
 		} catch (IOException e) {
-			model.tool.getErrMgr().toolError(ErrorType.UNDEFINED_RULE_REF, model.fqParserName + ":" + ctxName);
+			model.tool.getErrMgr().toolError(ErrorType.UNKNOWN_PARSER_RULE_REF, model.fqParserName + ":" + ctxName);
 		}
 		return null;
 	}
@@ -97,21 +98,34 @@ public class ReferenceParser {
 	}
 
 	private Parser instantiate(String fqName) throws IOException {
+		ClassLoader loader = Thread.currentThread().getContextClassLoader();
+		model.packages = ClassUtil.dump(loader);
+
+		Class<?> inst;
 		try {
-			ClassLoader loader = Thread.currentThread().getContextClassLoader();
-			Class<?> pClass = Class.forName(fqName, true, loader);
-			Constructor<?> constructor = pClass.getConstructor(TokenStream.class);
+			inst = Class.forName(fqName, true, loader);
+		} catch (ClassNotFoundException e) {
+			throw new IOException("Reference parser class not found.", e);
+		}
+
+		Constructor<?> constructor;
+		try {
+			constructor = inst.getConstructor(TokenStream.class);
+		} catch (NoSuchMethodException | SecurityException e) {
+			throw new IOException("Reference parser constructor missing or not accessible", e);
+		}
+
+		try {
 			return (Parser) constructor.newInstance((TokenStream) null);
-		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException | NoSuchMethodException
-				| SecurityException | IllegalArgumentException | InvocationTargetException e) {
+		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
+				| InvocationTargetException e) {
 			throw new IOException("Reference parser instantiation failed (not on classpath)", e);
 		}
 	}
 
 	/*
-	 * Try to instantiate an inner class context of the parser. ClassNotFound,
-	 * NoSuchMethod, and ClassCast exceptions are silently reported by returning a
-	 * null value.
+	 * Try to instantiate an inner class context of the parser. ClassNotFound, NoSuchMethod, and
+	 * ClassCast exceptions are silently reported by returning a null value.
 	 */
 	private ParserRuleContext instantiate(String fqPackage, String contextName) throws IOException {
 		try {

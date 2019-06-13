@@ -9,34 +9,22 @@
 
 lexer grammar XVisitorLexer;
 
+@header {
+	package net.certiv.antlr.xvisitor.parser.gen;
+	import net.certiv.antlr.xvisitor.parser.LexerAdaptor;
+}
+
 options {
 	superClass = LexerAdaptor ;
 }
 
 tokens {
-	TEXT,
-	RBRACE
+	INT,
+	RBRACE,
+	TEXT
 }
 
 
-@header {
-	package net.certiv.antlr.xvisitor.parser.gen;
-
-	import net.certiv.antlr.xvisitor.parser.LexerAdaptor;
-}
-
-
-@members {
-
-	private void handleRightTerminator(int nestedType, int defaultType) {
-		popMode();
-		if ( _modeStack.size() > 0 ) {
-			setType(nestedType);
-		} else {
-			setType(defaultType);
-		}
-	}
-}
 
 // ---------------------------------------------------------------------------------
 // default mode
@@ -54,11 +42,11 @@ DOC_COMMENT
 	;
 
 BLOCK_COMMENT
-	:	/* { bcSuffix() }? */ BlockComment -> channel(HIDDEN)
+	:	BlockComment -> channel(HIDDEN)
 	;
 
 LINE_COMMENT
-	:	/* { lcPrefix() }? */ LineComment -> channel(HIDDEN)
+	:	LineComment -> channel(HIDDEN)
 	;
 
 // -------
@@ -67,11 +55,11 @@ LINE_COMMENT
 //
 
 OPTIONS
-	: 'options' -> pushMode(Options)
+	: 'options'	-> pushMode(Options)
 	;
 
 LBRACE
-	:	LBrace -> pushMode(ActionBlock)
+	: LBrace	-> pushMode(ActionBlock)
 	;
 
 
@@ -87,7 +75,7 @@ XVISITOR	: 'xvisitor'	;
 COLON		: Colon		;
 COMMA		: Comma		;
 SEMI		: Semi		;
-ASSIGN		: Assign	;
+ASSIGN		: Equal	;
 QUESTION	: Question	;
 STAR		: Star		;
 AT			: At		;
@@ -98,14 +86,8 @@ OR			: Or		;
 NOT			: Not		;
 
 /** Allow unicode rule/token names */
-ID
-	:	NameStartChar NameChar*
-	;
-
-LITERAL
-	:	SglQuoteLiteral
-	|	DblQuoteLiteral
-	;
+ID		: Id		;
+LITERAL	: Literal	;
 
 // ----------
 // Whitespace
@@ -129,21 +111,21 @@ ERRCHAR
 // ---------------------------------------------------------------------------------
 mode Options;
 
-	OPT_LBRACE	: LBrace					;
-	OPT_RBRACE	: RBrace	-> popMode		;
-
-	OPT_ID		: NameStartChar NameChar*			;
-	OPT_LITERAL	: DblQuoteLiteral | SglQuoteLiteral	;
-
-	OPT_DOT		: Dot		;
-	OPT_ASSIGN	: Assign	;
-	OPT_SEMI	: Semi		;
-	OPT_STAR	: Star		;
-	OPT_INT		: Int		;
-
 	OPT_DOC_COMMENT		:	DocComment 		-> type(BLOCK_COMMENT), channel(HIDDEN)		;
 	OPT_BLOCK_COMMENT	:	BlockComment 	-> type(BLOCK_COMMENT), channel(HIDDEN)		;
 	OPT_LINE_COMMENT	:	LineComment 	-> type(LINE_COMMENT), channel(HIDDEN)		;
+
+	OPT_LBRACE			: LBrace			-> type(LBRACE)				;
+	OPT_RBRACE			: RBrace			-> type(RBRACE), popMode	;
+
+	OPT_ID				: Id				-> type(ID)					;
+	OPT_DOT				: Dot				-> type(DOT)				;
+	OPT_ASSIGN			: Equal				-> type(ASSIGN)				;
+	OPT_SEMI			: Semi				-> type(SEMI)				;
+	OPT_STAR			: Star				-> type(STAR)				;
+	OPT_INT				: Int				-> type(INT)				;
+
+	OPT_LITERAL			: Literal			-> type(LITERAL)			;
 
 	OPT_HORZ_WS			:	Hws+ 			-> type(HORZ_WS), channel(HIDDEN)		;
 	OPT_VERT_WS			:	Vws+ 			-> type(VERT_WS), channel(HIDDEN)		;
@@ -177,7 +159,7 @@ mode ActionBlock;
 fragment Colon		: ':'	;
 fragment Comma		: ','	;
 fragment Semi		: ';'	;
-fragment Assign		: '='	;
+fragment Equal		: '='	;
 fragment Question	: '?'	;
 fragment Star		: '*'	;
 fragment At			: '@'	;
@@ -198,14 +180,7 @@ fragment DocComment		: '/**' .*? '*/' ;
 fragment BlockComment	: '/#' .*? '#/' ;
 fragment LineComment	: '#' ~'\n'* ( '\n' Hws* '#' ~'\n'* )*	;
 
-fragment
-NameChar
-	:   NameStartChar
-	|   '0'..'9' |   '_'
-	|   '\u00B7'
-	|   '\u0300'..'\u036F'
-	|   '\u203F'..'\u2040'
-	;
+fragment Id	: NameStartChar NameChar* ;
 
 fragment
 NameStartChar
@@ -221,8 +196,21 @@ NameStartChar
 	|   '\u3001'..'\uD7FF'
 	|   '\uF900'..'\uFDCF'
 	|   '\uFDF0'..'\uFFFD'
-	; 	// ignores | ['\u10000-'\uEFFFF] ;
+	;
 
+fragment
+NameChar
+	:   NameStartChar
+	|   '0'..'9'
+	|   '_'
+	|   '\u00B7'
+	|   '\u0300'..'\u036F'
+	|   '\u203F'..'\u2040'
+	;
+
+
+
+fragment Literal			: DblQuoteLiteral | SglQuoteLiteral ;
 
 fragment SglQuoteLiteral	:	'\'' ( EscSeq | ~['\\] )* '\''	;
 fragment DblQuoteLiteral	:	'"'  ( EscSeq | ~["\\] )* '"'	;

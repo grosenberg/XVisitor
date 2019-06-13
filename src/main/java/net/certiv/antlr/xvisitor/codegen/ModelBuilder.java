@@ -17,16 +17,17 @@ import net.certiv.antlr.xvisitor.parser.gen.XVisitorParser.ActionBlockContext;
 import net.certiv.antlr.xvisitor.parser.gen.XVisitorParser.ActionContext;
 import net.certiv.antlr.xvisitor.parser.gen.XVisitorParser.GrammarSpecContext;
 import net.certiv.antlr.xvisitor.parser.gen.XVisitorParser.OptionContext;
+import net.certiv.antlr.xvisitor.parser.gen.XVisitorParser.OptionValueContext;
 import net.certiv.antlr.xvisitor.parser.gen.XVisitorParser.OptionsSpecContext;
 import net.certiv.antlr.xvisitor.parser.gen.XVisitorParser.ReferenceContext;
 import net.certiv.antlr.xvisitor.parser.gen.XVisitorParser.SeparatorContext;
 import net.certiv.antlr.xvisitor.parser.gen.XVisitorParser.TextContext;
 import net.certiv.antlr.xvisitor.parser.gen.XVisitorParser.WordContext;
-import net.certiv.antlr.xvisitor.parser.gen.XVisitorParser.XmainContext;
+import net.certiv.antlr.xvisitor.parser.gen.XVisitorParser.XgroupContext;
 import net.certiv.antlr.xvisitor.parser.gen.XVisitorParser.XpathContext;
 import net.certiv.antlr.xvisitor.parser.gen.XVisitorParser.XpathSpecContext;
-import net.certiv.antlr.xvisitor.tool.ErrorType;
 import net.certiv.antlr.xvisitor.parser.gen.XVisitorParserBaseVisitor;
+import net.certiv.antlr.xvisitor.tool.ErrorType;
 
 public class ModelBuilder extends XVisitorParserBaseVisitor<CodeGenModel> {
 
@@ -63,21 +64,14 @@ public class ModelBuilder extends XVisitorParserBaseVisitor<CodeGenModel> {
 
 	@Override
 	public CodeGenModel visitOption(OptionContext ctx) {
-		if (ctx.OPT_ASSIGN() != null) {
-			String lhs = ctx.OPT_ID(0).getText();
-			String rhs = ctx.optionValue().getText();
-			model.addOption(lhs, rhs);
-		} else {
-			StringBuilder sb = new StringBuilder();
-			sb.append(ctx.OPT_ID(0).getText());
-			for (int idx = 1; idx < ctx.OPT_ID().size(); idx++) {
-				sb.append(".");
-				sb.append(ctx.OPT_ID(idx));
-			}
-			String lhs = sb.toString();
-			model.addOption(lhs, lhs);
-		}
+		String lhs = ctx.ID().getText();
+		OptionValueContext vctx = ctx.optionValue();
 
+		StringBuilder sb = new StringBuilder();
+		for (TerminalNode id : vctx.ID()) {
+			sb.append(id + ".");
+		}
+		model.addOption(lhs, sb.substring(0, sb.length() - 1));
 		return super.visitOption(ctx);
 	}
 
@@ -89,13 +83,13 @@ public class ModelBuilder extends XVisitorParserBaseVisitor<CodeGenModel> {
 	}
 
 	@Override
-	public CodeGenModel visitXmain(XmainContext ctx) {
+	public CodeGenModel visitXgroup(XgroupContext ctx) {
 		abName = ctx.name.getText();
 		model.setMain(abName);
 		for (TerminalNode id : ctx.ID()) {
 			model.addPathName(id.getText());
 		}
-		return super.visitXmain(ctx);
+		return super.visitXgroup(ctx);
 	}
 
 	@Override
@@ -195,6 +189,7 @@ public class ModelBuilder extends XVisitorParserBaseVisitor<CodeGenModel> {
 		// corresponds to a context class that contains the REFERENCE.
 
 		// refs[0] is the name of the context class method identified by the REFERENCE
+		// refs[1] is any qualifier (i.e., '.text') to be applied to the REFERENCE method
 		// analyze reference - strip '$' and split on '.'
 		String[] refs = ctx.REFERENCE().getSymbol().getText().substring(1).split("\\.", 2);
 
@@ -288,8 +283,8 @@ public class ModelBuilder extends XVisitorParserBaseVisitor<CodeGenModel> {
 	}
 
 	/*
-	 * Gets a list of simple type names for the given fieldName in the class of the given context
-	 * name. Returns an empty list if the context class or field does not exist.
+	 * Gets a list of simple type names for the given fieldName in the class of the given context name.
+	 * Returns an empty list if the context class or field does not exist.
 	 */
 	private List<String> discernReferenceVarType(String contextName, String fieldName) {
 		ParserRuleContext ctxClass = refParser.loadRefContext(Strings.titleCase(contextName) + "Context");
@@ -303,9 +298,9 @@ public class ModelBuilder extends XVisitorParserBaseVisitor<CodeGenModel> {
 	}
 
 	/*
-	 * Gets a token type for the given type or literal name. The runtime processor will have to
-	 * figure out the relevant context. Returns -1 if the token name does not correspond to a known
-	 * parser token type.
+	 * Gets a token type for the given type or literal name. The runtime processor will have to figure
+	 * out the relevant context. Returns -1 if the token name does not correspond to a known parser
+	 * token type.
 	 */
 	private String discernTokenOrLiteralType(String name) {
 		String token = name;
@@ -402,9 +397,9 @@ public class ModelBuilder extends XVisitorParserBaseVisitor<CodeGenModel> {
 			String name = ctx.ID().getText();
 			model.addWordId(name);
 			if (!model.isValidId(name)) {
-				ErrorType eType = ErrorType.UNDEFINED_RULE_REF;
+				ErrorType eType = ErrorType.UNKNOWN_PARSER_RULE_REF;
 				if (model.isTokenId(name)) {
-					eType = ErrorType.UNKNOWN_LEXER_CONSTANT;
+					eType = ErrorType.UNKNOWN_LEXER_RULE_REF;
 				}
 				model.tool.getErrMgr().grammarError(eType, model.grammarFileName, ctx.ID().getSymbol(), name);
 			}
