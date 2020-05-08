@@ -31,6 +31,7 @@ import org.stringtemplate.v4.STGroup;
 import org.stringtemplate.v4.STGroupFile;
 import org.stringtemplate.v4.misc.ErrorBuffer;
 
+import net.certiv.antlr.xvisitor.IToolListener;
 import net.certiv.antlr.xvisitor.tool.Messages.GrammarSemanticsMessage;
 import net.certiv.antlr.xvisitor.tool.Messages.GrammarSyntaxMessage;
 import net.certiv.antlr.xvisitor.tool.Messages.ToolMessage;

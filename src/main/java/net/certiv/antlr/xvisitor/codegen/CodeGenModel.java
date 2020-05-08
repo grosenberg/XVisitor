@@ -22,9 +22,9 @@ import net.certiv.antlr.runtime.xvisitor.xpath.LiteralElement;
 import net.certiv.antlr.runtime.xvisitor.xpath.RuleElement;
 import net.certiv.antlr.runtime.xvisitor.xpath.TokenElement;
 import net.certiv.antlr.runtime.xvisitor.xpath.WildcardElement;
+import net.certiv.antlr.xvisitor.ITool;
 import net.certiv.antlr.xvisitor.Tool;
 import net.certiv.antlr.xvisitor.tool.ErrorType;
-import net.certiv.antlr.xvisitor.tool.ITool;
 
 public class CodeGenModel {
 
@@ -65,10 +65,10 @@ public class CodeGenModel {
 		this.tool = tool;
 		this.parser = parser;
 		this.tree = tree;
-		this.paths = new LinkedHashMap<>();
+		paths = new LinkedHashMap<>();
 	}
 
-	// ====== Model Use Methods =========================================================
+	// ====== Model Use Methods ================================
 
 	public String sourceFileName;
 	public String grammarFileName;
@@ -81,7 +81,7 @@ public class CodeGenModel {
 	public String packages; // known to the classloader
 
 	public void update() {
-		sourceFileName = parser.getSourceName();
+		sourceFileName = fqPackageName;
 		grammarClass = grammarName + "Visitor";
 		grammarFileName = grammarClass + ".java";
 		version = Tool.VERSION;
@@ -126,9 +126,9 @@ public class CodeGenModel {
 	}
 
 	/**
-	 * Returns the path segment name at the given prior number of segments from the last. If prior is
-	 * '0', returns the same segment as getLastContextName(). If prior references a non-existant
-	 * segment, returns the first segment name.
+	 * Returns the path segment name at the given prior number of segments from the
+	 * last. If prior is '0', returns the same segment as getLastContextName(). If
+	 * prior references a non-existant segment, returns the first segment name.
 	 */
 	public String getLastContextName(int prior) {
 		int idx = Math.abs(prior);
@@ -137,10 +137,11 @@ public class CodeGenModel {
 		return ePrior.getIdent();
 	}
 
-	// ====== Model Creation Methods ====================================================
+	// ====== Model Creation Methods
+	// ====================================================
 
 	public void setGrammarName(String name) {
-		this.grammarName = name;
+		grammarName = name;
 		tool.getErrMgr().info("Grammar name: " + name);
 	}
 
@@ -166,7 +167,7 @@ public class CodeGenModel {
 	}
 
 	public void setMain(String name) {
-		this.mainRule = name;
+		mainRule = name;
 		tool.getErrMgr().info("Main rule name: " + name);
 	}
 
@@ -177,19 +178,19 @@ public class CodeGenModel {
 	}
 
 	public void startPath(String name) {
-		this.inprocName = name;
+		inprocName = name;
 		tool.getErrMgr().info("StartPath: " + name);
-		this.inprocPath = paths.get(name);
-		if (this.inprocPath == null) {
+		inprocPath = paths.get(name);
+		if (inprocPath == null) {
 			tool.getErrMgr().info("Main rule alts do not include: " + name);
 			addPathName(name);
-			this.inprocPath = paths.get(name);
+			inprocPath = paths.get(name);
 		}
 	}
 
 	public void addSeparator(boolean gap, boolean invert) {
-		this.inprocAny = gap;
-		this.inprocInvert = invert;
+		inprocAny = gap;
+		inprocInvert = invert;
 		String g = gap ? "//" : "/";
 		String i = invert ? "!" : "";
 		tool.getErrMgr().info("Separator: " + g + i);
@@ -225,7 +226,7 @@ public class CodeGenModel {
 
 	/**
 	 * Determine if the given parser rule name is known.
-	 * 
+	 *
 	 * @param name an ID name
 	 * @return true if a known rule name
 	 */

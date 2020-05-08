@@ -7,19 +7,20 @@ import org.stringtemplate.v4.AttributeRenderer;
 /**
  * Renders an int value as that value plus a constant offset.
  */
-public class IndexOffsetRenderer implements AttributeRenderer {
+public class IndexOffsetRenderer implements AttributeRenderer<Object> {
 
 	// o is expected to be an int value
 	// offset is a string containing the offset value, e.g., "500"
+	@Override
 	public String toString(Object o, String offset, Locale locale) {
 		if (offset == null) return o.toString();
 
 		// convert o to int; registration ensures that o is Integer
-		int value = ((Integer) o).intValue();
+		int value = ((Integer) o);
 
 		// convert offset to int and add
 		try {
-			value += Integer.valueOf(offset).intValue();
+			value += Integer.valueOf(offset);
 		} catch (NumberFormatException e) {
 			value += 500; // silent exception default
 		}

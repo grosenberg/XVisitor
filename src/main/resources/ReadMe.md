@@ -2,7 +2,7 @@
 
 A tool for generating customized Antlr4 parse-trees visitors using grammar-style definitions.
 
-[Documentation](http://www.certiv.net/projects/xvisitor.html). Antlr-standard BSD License.  
+[Documentation](http://www.certiv.net/projects/xvisitor.html). Antlr-standard BSD License.
 
 #### Summary
 
@@ -23,7 +23,7 @@ XVisitor enables multiple XPath-styled probes to be evaluated in parallel agains
 * Efficiency:
 	* complex path state analysis can be reduced to a set of simply-defined path matches
 	* parse-tree branches that cannot be matched are skipped [TBI]
-	
+
 
 #### Dependencies
 
@@ -33,7 +33,7 @@ XVisitor enables multiple XPath-styled probes to be evaluated in parallel agains
 
 The following grammar will generate an outline listing of select nodes in a parse-tree generated using the [ANTLRv4](https://github.com/antlr/grammars-v4/tree/master/antlr4) grammar.
 
-``` 
+```
 xvisitor grammar Outline;
 
 options {
@@ -42,8 +42,8 @@ options {
 }
 
 @header {
-	package net.certiv.antlrdt4.core.parser.gen;
-	# import net.certiv.antlrdt4.core.parser.OutlineAdaptor;
+	package net.certiv.antlr.dt.core.parser.gen;
+	# import net.certiv.antlr.dt.core.parser.OutlineAdaptor;
 }
 
 outline
@@ -62,21 +62,21 @@ grammarSpec		: /grammarSpec
 				;
 
 optionsBlock	: //prequelConstruct/optionsSpec
-					{ onEntry: System.out.println("Options: "); } 	
-					{ onExit:  System.out.println("End Options."); }	
+					{ onEntry: System.out.println("Options: "); }
+					{ onExit:  System.out.println("End Options."); }
 				;
 
 optionStatement	: //prequelConstruct/optionsSpec/option
-					{ 
+					{
 						System.out.print($identifier.text);
 						System.out.print(" = ");
 						System.out.println($optionValue.text);
-					}	
+					}
 				;
 
-tokensBlock		: //tokensSpec 
-					{ onEntry: System.out.println("Tokens: "); } 	
-					{ onExit:  System.out.println("End Tokens."); }	
+tokensBlock		: //tokensSpec
+					{ onEntry: System.out.println("Tokens: "); }
+					{ onExit:  System.out.println("End Tokens."); }
 				;
 
 tokenStatement	: //tokensSpec//id
@@ -84,7 +84,7 @@ tokenStatement	: //tokensSpec//id
 				;
 
 atAction		: /grammarSpec/prequelConstruct/action
-					{ 
+					{
 						System.out.print("@");
 						if ($COLONCOLON != null) {
 							System.out.print($actionScopeName.text + "::");
@@ -97,14 +97,14 @@ atAction		: /grammarSpec/prequelConstruct/action
 
 parserRule		: //ruleSpec/parserRuleSpec
 					{
-						System.out.print("Parser rule: "); 
+						System.out.print("Parser rule: ");
 						System.out.println($RULE_REF.text);
 					}
 				;
 
 lexerRule		: //lexerRuleSpec
 					{
-						System.out.print("Lexer rule: "); 
+						System.out.print("Lexer rule: ");
 						System.out.println($TOKEN_REF.text);
 					}
 				;

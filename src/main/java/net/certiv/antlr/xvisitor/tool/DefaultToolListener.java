@@ -20,15 +20,22 @@ package net.certiv.antlr.xvisitor.tool;
 
 import org.stringtemplate.v4.ST;
 
+import net.certiv.antlr.runtime.xvisitor.util.Strings;
+import net.certiv.antlr.xvisitor.ITool;
+import net.certiv.antlr.xvisitor.IToolListener;
+
 public class DefaultToolListener implements IToolListener {
 
+	public final ITool tool;
 	private Level level;
-
-	public ITool tool;
 
 	public DefaultToolListener(ITool tool) {
 		this.tool = tool;
-		this.level = Level.WARN;
+		level = Level.WARN;
+	}
+
+	public Level getLevel() {
+		return level;
 	}
 
 	public void setLevel(Level level) {
@@ -39,7 +46,7 @@ public class DefaultToolListener implements IToolListener {
 	public void info(String msg) {
 		if (skip(Level.INFO)) return;
 		if (tool.getErrMgr().formatWantsSingleLineMessage()) {
-			msg = msg.replace('\n', ' ');
+			msg = Strings.inline(msg);
 		}
 		System.out.println(msg);
 	}
@@ -48,26 +55,26 @@ public class DefaultToolListener implements IToolListener {
 	public void warn(Messages msg) {
 		if (skip(Level.WARN)) return;
 		ST msgST = tool.getErrMgr().getMessageTemplate(msg);
-		String outputMsg = msgST.render();
+		String out = msgST.render();
 		if (tool.getErrMgr().formatWantsSingleLineMessage()) {
-			outputMsg = outputMsg.replace('\n', ' ');
+			out = Strings.inline(out);
 		}
-		System.err.println(outputMsg);
+		System.err.println(out);
 	}
 
 	@Override
 	public void error(Messages msg) {
 		if (skip(Level.ERROR)) return;
 		ST msgST = tool.getErrMgr().getMessageTemplate(msg);
-		String outputMsg = msgST.render();
+		String out = msgST.render();
 		if (tool.getErrMgr().formatWantsSingleLineMessage()) {
-			outputMsg = outputMsg.replace('\n', ' ');
+			out = Strings.inline(out);
 		}
-		System.err.println(outputMsg);
+		System.err.println(out);
 	}
 
 	private boolean skip(Level target) {
-		switch (this.level) {
+		switch (level) {
 			default:
 			case INFO:
 				return false;

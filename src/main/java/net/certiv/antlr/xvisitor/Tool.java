@@ -1,8 +1,8 @@
 /*******************************************************************************
- * Copyright (c) 2010-2017 Gerald Rosenberg & others. All rights reserved. 
- * This program and the accompanying materials are made available under the 
- * terms of the standard 3-clause BSD License. A copy of the License is 
- * provided with this distribution in the License.txt file. 
+ * Copyright (c) 2010-2017 Gerald Rosenberg & others. All rights reserved.
+ * This program and the accompanying materials are made available under the
+ * terms of the standard 3-clause BSD License. A copy of the License is
+ * provided with this distribution in the License.txt file.
  *******************************************************************************/
 package net.certiv.antlr.xvisitor;
 
@@ -16,32 +16,46 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
+import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.RecognitionException;
+import org.antlr.v4.runtime.Token;
+import org.antlr.v4.runtime.misc.LogManager;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import net.certiv.antlr.runtime.xvisitor.util.Reflect;
+import net.certiv.antlr.runtime.xvisitor.util.Strings;
 import net.certiv.antlr.xvisitor.codegen.CodeGenModel;
 import net.certiv.antlr.xvisitor.codegen.CodeGenerator;
 import net.certiv.antlr.xvisitor.codegen.ModelBuilder;
 import net.certiv.antlr.xvisitor.parser.ParserErrorListener;
 import net.certiv.antlr.xvisitor.parser.gen.XVisitorLexer;
 import net.certiv.antlr.xvisitor.parser.gen.XVisitorParser;
+import net.certiv.antlr.xvisitor.tool.DefaultToolListener;
+import net.certiv.antlr.xvisitor.tool.ErrorManager;
 import net.certiv.antlr.xvisitor.tool.ErrorType;
 import net.certiv.antlr.xvisitor.tool.Level;
-import net.certiv.antlr.xvisitor.tool.ToolBase;
+import net.certiv.antlr.xvisitor.tool.Messages;
 
-public class Tool extends ToolBase {
+public class Tool implements ITool, IToolListener {
 
 	// TODO: get actual version from class properties
 	public static final String VERSION = "4.7";
 	public static final String GRAMMAR_EXTENSION = ".xv";
+	public static final String MSG_FORMAT = "antlr";
+	public static final Token INVALID_TOKEN = new CommonToken(Token.INVALID_TYPE);
 
-	public static enum OptionArgType {
+	// defined options available in the grammar
+	public static final String SUPER_CLASS = "superClass";
+	public static final String PARSER_CLASS = "parserClass";
+	public static final String TOKEN_CLASS = "tokenClass";
+
+	public enum OptionArgType {
 		NONE, // also boolean
 		STRING
 	}
@@ -65,6 +79,8 @@ public class Tool extends ToolBase {
 		}
 	}
 
+	// -------------------
+
 	public static Option[] optionDefs = {
 			new Option("outputDirectory", "-o", OptionArgType.STRING, "directory where all output is generated"),
 			new Option("libDirectory", "-lib", OptionArgType.STRING, "location of grammars, tokens files"),
@@ -76,8 +92,18 @@ public class Tool extends ToolBase {
 	public String libDirectory;
 	public String level;
 
+	// -------------------
+
+	private List<IToolListener> listeners = new CopyOnWriteArrayList<>();
+	private DefaultToolListener defaultListener;
+
+	public ErrorManager errMgr;
+	public LogManager logMgr = new LogManager();
+
+	public Level lvl;
+
 	protected boolean haveOutputDir;
-	protected List<String> grammarFiles = new ArrayList<String>();
+	protected List<String> grammarFiles = new ArrayList<>();
 	protected StringWriter stringWriter;
 
 	public static void main(String[] args) {
@@ -96,12 +122,15 @@ public class Tool extends ToolBase {
 	/** Create an instance of the tool, pending configuration and use. */
 	public Tool() {
 		super();
+		errMgr = new ErrorManager(this);
+		errMgr.setFormat(MSG_FORMAT);
+		defaultListener = new DefaultToolListener(this);
 	}
 
 	/**
-	 * Create an instance of the tool configured using command-line styled arguments and then execute
-	 * for file generation.
-	 * 
+	 * Create an instance of the tool configured using command-line styled arguments
+	 * and then execute for file generation.
+	 *
 	 * @param args command-line styled arguments
 	 */
 	public Tool(String[] args) {
@@ -112,7 +141,7 @@ public class Tool extends ToolBase {
 
 	/**
 	 * Configure the tool using command-line styled arguments.
-	 * 
+	 *
 	 * @param args command-line styled arguments
 	 * @return true iff the command-line styled arguments are valid
 	 */
@@ -147,38 +176,38 @@ public class Tool extends ToolBase {
 
 		if (level != null) {
 			try {
-				getDefaultListener().setLevel(Level.valueOf(level.trim().toUpperCase()));
+				lvl = Level.valueOf(level.trim().toUpperCase());
 			} catch (IllegalArgumentException e) {
 				errMgr.toolError(ErrorType.INVALID_VERBOSE_LEVEL, level);
 			}
 		}
 
 		if (outputDirectory != null) {
-			if (outputDirectory.endsWith("/") || outputDirectory.endsWith("\\")) {
+			if (outputDirectory.endsWith(Strings.SLASH) || outputDirectory.endsWith(Strings.ESC)) {
 				outputDirectory = outputDirectory.substring(0, outputDirectory.length() - 1);
 			}
 			File outDir = new File(outputDirectory);
-			this.haveOutputDir = true;
+			haveOutputDir = true;
 			if (outDir.exists() && !outDir.isDirectory()) {
 				errMgr.toolError(ErrorType.OUTPUT_DIR_IS_FILE, outputDirectory);
-				libDirectory = ".";
+				libDirectory = Strings.DOT;
 				ok = false;
 			}
 		} else {
-			outputDirectory = ".";
+			outputDirectory = Strings.DOT;
 		}
 		if (libDirectory != null) {
-			if (libDirectory.endsWith("/") || libDirectory.endsWith("\\")) {
+			if (libDirectory.endsWith(Strings.SLASH) || libDirectory.endsWith(Strings.ESC)) {
 				libDirectory = libDirectory.substring(0, libDirectory.length() - 1);
 			}
 			File outDir = new File(libDirectory);
 			if (!outDir.exists()) {
 				errMgr.toolError(ErrorType.DIR_NOT_FOUND, libDirectory);
-				libDirectory = ".";
+				libDirectory = Strings.DOT;
 				ok = false;
 			}
 		} else {
-			libDirectory = ".";
+			libDirectory = Strings.DOT;
 		}
 
 		return ok;
@@ -262,7 +291,7 @@ public class Tool extends ToolBase {
 
 	public void setOutputDirectory(String outputDirectory) {
 		this.outputDirectory = outputDirectory;
-		this.haveOutputDir = outputDirectory != null;
+		haveOutputDir = outputDirectory != null;
 	}
 
 	public void setLibDirectory(String libDirectory) {
@@ -287,15 +316,18 @@ public class Tool extends ToolBase {
 	}
 
 	/**
-	 * This method is used by all code generators to create new output files. If the outputDir set by -o
-	 * is not present it will be created. The final filename is sensitive to the output directory and
-	 * the directory where the grammar file was found. If -o is /tmp and the original grammar file was
-	 * foo/t.g4 then output files go in /tmp/foo. The output dir -o spec takes precedence if it's
-	 * absolute. E.g., if the grammar file dir is absolute the output dir is given precendence. "-o /tmp
-	 * /usr/lib/t.g4" results in "/tmp/T.java" as output (assuming t.g4 holds T.java). If no -o is
-	 * specified, then just write to the directory where the grammar file was found. If
-	 * outputDirectory==null then write a Literal.
+	 * This method is used by all code generators to create new output files. If the
+	 * outputDir set by -o is not present it will be created. The final filename is
+	 * sensitive to the output directory and the directory where the grammar file
+	 * was found. If -o is /tmp and the original grammar file was foo/t.g4 then
+	 * output files go in /tmp/foo. The output dir -o spec takes precedence if it's
+	 * absolute. E.g., if the grammar file dir is absolute the output dir is given
+	 * precendence. "-o /tmp /usr/lib/t.g4" results in "/tmp/T.java" as output
+	 * (assuming t.g4 holds T.java). If no -o is specified, then just write to the
+	 * directory where the grammar file was found. If outputDirectory==null then
+	 * write a Literal.
 	 */
+	@Override
 	public Writer getOutputFileWriter(CodeGenModel model) throws IOException {
 		if (outputDirectory == null) {
 			if (stringWriter == null) stringWriter = new StringWriter();
@@ -317,15 +349,16 @@ public class Tool extends ToolBase {
 	}
 
 	/**
-	 * Return the location where ANTLR will generate output files for a given file. This is a base
-	 * directory and output files will be relative to here in some cases such as when -o option is used
-	 * and input files are given relative to the input directory.
-	 * 
+	 * Return the location where ANTLR will generate output files for a given file.
+	 * This is a base directory and output files will be relative to here in some
+	 * cases such as when -o option is used and input files are given relative to
+	 * the input directory.
+	 *
 	 * @param fileNameWithPath pathContexts to input source
 	 */
 	private File getOutputDirectory(String fileNameWithPath) {
 		File file = new File(fileNameWithPath);
-		File fileDir = file.getParentFile() != null ? file.getParentFile() : new File(".");
+		File fileDir = file.getParentFile() != null ? file.getParentFile() : new File(Strings.DOT);
 		File outputDir;
 
 		if (haveOutputDir) {
@@ -351,6 +384,99 @@ public class Tool extends ToolBase {
 		return outputDir;
 	}
 
+	@Override
+	public ErrorManager getErrMgr() {
+		return errMgr;
+	}
+
+	protected DefaultToolListener getDefaultListener() {
+		return defaultListener;
+	}
+
+	public void log(String msg) {
+		log(null, msg);
+	}
+
+	public void log(String component, String msg) {
+		logMgr.log(component, msg);
+	}
+
+	@Override
+	public void info(String msg) {
+		if (skip(Level.INFO)) return;
+		if (listeners.isEmpty()) {
+			defaultListener.info(msg);
+		} else {
+			for (IToolListener l : listeners) {
+				l.info(msg);
+			}
+		}
+	}
+
+	@Override
+	public void warn(Messages msg) {
+		if (skip(Level.WARN)) return;
+		if (listeners.isEmpty()) {
+			defaultListener.warn(msg);
+		} else {
+			for (IToolListener l : listeners) {
+				l.warn(msg);
+			}
+		}
+	}
+
+	@Override
+	public void error(Messages msg) {
+		if (skip(Level.ERROR)) return;
+		if (listeners.isEmpty()) {
+			defaultListener.error(msg);
+		} else {
+			for (IToolListener l : listeners) {
+				l.error(msg);
+			}
+		}
+	}
+
+	private boolean skip(Level target) {
+		switch (lvl) {
+			default:
+			case INFO:
+				return false;
+			case WARN:
+				if (target != Level.INFO) return false;
+				return true;
+			case ERROR:
+				if (target == Level.ERROR) return false;
+				return true;
+			case QUIET:
+				return true;
+		}
+	}
+
+	public int getNumWarnings() {
+		return errMgr.getNumWarnings();
+	}
+
+	public int getNumErrors() {
+		return errMgr.getNumErrors();
+	}
+
+	public List<IToolListener> getListeners() {
+		return listeners;
+	}
+
+	public void addListener(IToolListener tl) {
+		if (tl != null) listeners.add(tl);
+	}
+
+	public void removeListener(IToolListener tl) {
+		listeners.remove(tl);
+	}
+
+	public void removeListeners() {
+		listeners.clear();
+	}
+
 	public void help() {
 		version();
 		for (Option o : optionDefs) {
@@ -360,7 +486,6 @@ public class Tool extends ToolBase {
 		}
 	}
 
-	@Override
 	public void version() {
 		info("XVisitor CodeGenerator Version " + VERSION);
 	}
