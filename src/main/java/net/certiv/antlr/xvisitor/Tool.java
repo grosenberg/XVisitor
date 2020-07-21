@@ -44,8 +44,7 @@ import net.certiv.antlr.xvisitor.tool.Messages;
 
 public class Tool implements ITool, IToolListener {
 
-	// TODO: get actual version from class properties
-	public static final String VERSION = "4.7";
+	public static final String VERSION = "4.7.1";
 	public static final String GRAMMAR_EXTENSION = ".xv";
 	public static final String MSG_FORMAT = "antlr";
 	public static final Token INVALID_TOKEN = new CommonToken(Token.INVALID_TYPE);
@@ -84,7 +83,7 @@ public class Tool implements ITool, IToolListener {
 	public static Option[] optionDefs = {
 			new Option("outputDirectory", "-o", OptionArgType.STRING, "directory where all output is generated"),
 			new Option("libDirectory", "-lib", OptionArgType.STRING, "location of grammars, tokens files"),
-			new Option("level", "-v", OptionArgType.STRING, "verbosity (one of 'quiet', 'info', 'warn', 'error')"), //
+			new Option("level", "-v", OptionArgType.STRING, "verbosity [quiet|info|warn|error])"), //
 	};
 
 	// fields set by option manager
@@ -102,7 +101,7 @@ public class Tool implements ITool, IToolListener {
 
 	public Level lvl;
 
-	protected boolean haveOutputDir;
+	protected boolean hasOutputDir;
 	protected List<String> grammarFiles = new ArrayList<>();
 	protected StringWriter stringWriter;
 
@@ -146,7 +145,6 @@ public class Tool implements ITool, IToolListener {
 	 * @return true iff the command-line styled arguments are valid
 	 */
 	public boolean processFlags(String[] args) {
-
 		boolean ok = true;
 		for (int idx = 0; idx < args.length; idx++) {
 			String arg = args[idx];
@@ -157,7 +155,6 @@ public class Tool implements ITool, IToolListener {
 			}
 
 			boolean found = false;
-
 			for (Option o : optionDefs) {
 				if (arg.equals(o.name)) {
 					found = true;
@@ -174,42 +171,9 @@ public class Tool implements ITool, IToolListener {
 			}
 		}
 
-		if (level != null) {
-			try {
-				lvl = Level.valueOf(level.trim().toUpperCase());
-			} catch (IllegalArgumentException e) {
-				errMgr.toolError(ErrorType.INVALID_VERBOSE_LEVEL, level);
-			}
-		}
-
-		if (outputDirectory != null) {
-			if (outputDirectory.endsWith(Strings.SLASH) || outputDirectory.endsWith(Strings.ESC)) {
-				outputDirectory = outputDirectory.substring(0, outputDirectory.length() - 1);
-			}
-			File outDir = new File(outputDirectory);
-			haveOutputDir = true;
-			if (outDir.exists() && !outDir.isDirectory()) {
-				errMgr.toolError(ErrorType.OUTPUT_DIR_IS_FILE, outputDirectory);
-				libDirectory = Strings.DOT;
-				ok = false;
-			}
-		} else {
-			outputDirectory = Strings.DOT;
-		}
-		if (libDirectory != null) {
-			if (libDirectory.endsWith(Strings.SLASH) || libDirectory.endsWith(Strings.ESC)) {
-				libDirectory = libDirectory.substring(0, libDirectory.length() - 1);
-			}
-			File outDir = new File(libDirectory);
-			if (!outDir.exists()) {
-				errMgr.toolError(ErrorType.DIR_NOT_FOUND, libDirectory);
-				libDirectory = Strings.DOT;
-				ok = false;
-			}
-		} else {
-			libDirectory = Strings.DOT;
-		}
-
+		ok &= setLevel(level);
+		ok &= setOutputDirectory(outputDirectory);
+		ok &= setLibDirectory(libDirectory);
 		return ok;
 	}
 
@@ -279,27 +243,46 @@ public class Tool implements ITool, IToolListener {
 		return parser;
 	}
 
-	@Override
-	public String getLibDirectory() {
-		return libDirectory;
+	public boolean setLevel(String level) {
+		this.level = level == null ? level : Level.QUIET.name();
+		try {
+			lvl = Level.valueOf(level.trim().toUpperCase());
+			return true;
+
+		} catch (IllegalArgumentException e) {
+			errMgr.toolError(ErrorType.INVALID_VERBOSE_LEVEL, level);
+			return false;
+		}
 	}
 
-	@Override
-	public String getOutputDirectory() {
-		return outputDirectory;
+	public boolean setOutputDirectory(String out) {
+		if (out == null) out = Strings.DOT;
+		if (out.endsWith(Strings.SLASH) || out.endsWith(Strings.ESC)) {
+			out = out.substring(0, out.length() - 1);
+		}
+		File dir = new File(out);
+		hasOutputDir = dir.isDirectory();
+		if (dir.exists() && !dir.isDirectory()) {
+			errMgr.toolError(ErrorType.OUTPUT_DIR_IS_FILE, out);
+			return false;
+		}
+		outputDirectory = out;
+		if (libDirectory == null) libDirectory = out;
+		return true;
 	}
 
-	public void setOutputDirectory(String outputDirectory) {
-		this.outputDirectory = outputDirectory;
-		haveOutputDir = outputDirectory != null;
-	}
-
-	public void setLibDirectory(String libDirectory) {
-		this.libDirectory = libDirectory;
-	}
-
-	public void setLevel(String level) {
-		this.level = level;
+	public boolean setLibDirectory(String lib) {
+		if (lib == null) lib = Strings.DOT;
+		if (lib.endsWith(Strings.SLASH) || lib.endsWith(Strings.ESC)) {
+			lib = lib.substring(0, lib.length() - 1);
+		}
+		File dir = new File(lib);
+		if (!dir.isDirectory()) {
+			errMgr.toolError(ErrorType.DIR_NOT_FOUND, lib);
+			return false;
+		}
+		libDirectory = lib;
+		return true;
 	}
 
 	public void setGrammarFiles(List<String> grammarFiles) {
@@ -310,9 +293,19 @@ public class Tool implements ITool, IToolListener {
 		this.grammarFiles = Arrays.asList(grammarFiles);
 	}
 
+	@Override
+	public String getOutputDirectory() {
+		return outputDirectory;
+	}
+
+	@Override
+	public String getLibDirectory() {
+		return libDirectory;
+	}
+
 	public String getStringOutput() {
 		if (stringWriter != null) return stringWriter.toString();
-		return "";
+		return Strings.EMPTY;
 	}
 
 	/**
@@ -361,7 +354,7 @@ public class Tool implements ITool, IToolListener {
 		File fileDir = file.getParentFile() != null ? file.getParentFile() : new File(Strings.DOT);
 		File outputDir;
 
-		if (haveOutputDir) {
+		if (hasOutputDir) {
 			// -o /tmp /var/lib/t.g4 => /tmp/T.java
 			// -o subdir/output /usr/lib/t.g4 => subdir/output/T.java
 			// -o . /usr/lib/t.g4 => ./T.java
