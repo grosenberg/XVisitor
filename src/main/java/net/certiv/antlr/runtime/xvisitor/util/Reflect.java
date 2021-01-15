@@ -1,8 +1,8 @@
 /*******************************************************************************
- * Copyright (c) 2008-2014 G Rosenberg. All rights reserved. 
- * 
- * This program and the accompanying materials are made available under the 
- * terms of the Eclipse Public License v1.0 which accompanies this distribution, 
+ * Copyright (c) 2008-2014 G Rosenberg. All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  *******************************************************************************/
 package net.certiv.antlr.runtime.xvisitor.util;
@@ -23,7 +23,8 @@ public class Reflect {
 	public static final Class<?>[] emptyParams = new Class[] {};
 	public static final Object[] emptyArgs = new Object[] {};
 
-	private Reflect() {}
+	private Reflect() {
+	}
 
 	public static void set(Object target, String fieldName, Object value) {
 		try {
@@ -47,7 +48,7 @@ public class Reflect {
 
 	/**
 	 * Returns the value of the named field in the target class
-	 * 
+	 *
 	 * @param target
 	 * @param fieldName
 	 * @return
@@ -77,8 +78,8 @@ public class Reflect {
 			Method m = target.getClass().getMethod(methodName, params);
 			m.setAccessible(true);
 			return m.invoke(target, args);
-		} catch (SecurityException | NoSuchMethodException | IllegalArgumentException | IllegalAccessException |
-				InvocationTargetException e) {
+		} catch (SecurityException | NoSuchMethodException | IllegalArgumentException | IllegalAccessException
+				| InvocationTargetException e) {
 			e.printStackTrace();
 		}
 		return null;
@@ -90,8 +91,8 @@ public class Reflect {
 			Method m = target.getClass().getSuperclass().getDeclaredMethod(methodName, params);
 			m.setAccessible(true);
 			return m.invoke(target, args);
-		} catch (SecurityException | NoSuchMethodException | IllegalArgumentException | IllegalAccessException |
-				InvocationTargetException e) {
+		} catch (SecurityException | NoSuchMethodException | IllegalArgumentException | IllegalAccessException
+				| InvocationTargetException e) {
 			e.printStackTrace();
 		}
 		return null;
@@ -130,11 +131,11 @@ public class Reflect {
 
 	public static <T> T instantiate(final String className, final Class<T> type) {
 		try {
-			return type.cast(Class.forName(className).newInstance());
-		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-			e.printStackTrace();
+			return type.cast(Class.forName(className).getDeclaredConstructor().newInstance(emptyArgs));
+		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
+				| NoSuchMethodException | SecurityException | ClassNotFoundException e) {
+			return null;
 		}
-		return null;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
@@ -175,9 +176,9 @@ public class Reflect {
 	}
 
 	/**
-	 * Returns a list containing the FQ typename, followed by the FQ typenames of the
-	 * generic parameters, if any, for the named field in the target class. The list is
-	 * empty if there is no such named field.
+	 * Returns a list containing the FQ typename, followed by the FQ typenames of
+	 * the generic parameters, if any, for the named field in the target class. The
+	 * list is empty if there is no such named field.
 	 */
 	public static List<String> getFieldTypeNames(Object target, String fieldname) {
 		List<String> types = new ArrayList<>();
@@ -194,7 +195,7 @@ public class Reflect {
 	/**
 	 * Returns the field object for the named field in the target class. Throws a
 	 * NoSuchFieldException if there is no such named field.
-	 * 
+	 *
 	 * @param target
 	 * @param fieldName
 	 * @return
