@@ -44,10 +44,11 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<jdk.version>11</jdk.version>
-		<antlr.version>4.8-1</antlr.version>
-		<st.version>4.3</st.version>
 		<jar.finalName>${project.build.finalName}</jar.finalName>
+
+		<jdk.version>11</jdk.version>
+		<antlr.version>4.9.2</antlr.version>
+		<st.version>4.3.1</st.version>
 	</properties>
 
 	<dependencies>
