@@ -19,13 +19,13 @@ set src=%root%\%proj%\src\main\java\net\certiv\antlr\xvisitor\parser
 rem generated class bin
 set bin=%root%\%proj%\target\classes
 
-set antlrjar=%jlib%\antlr4-4.8-1.jar
-set arntmjar=%jlib%\antlr4-runtime-4.8-1.jar
-set arnt3jar=%jlib%\antlr-runtime-3.5.2.jar
-set sttmpjar=%jlib%\ST4-4.3.jar
-set xvisitor=%jlib%\xvisitor-4.7.jar
-set log4japi=%jlib%\log4j-api-2.11.1.jar
-set log4jcor=%jlib%\log4j-core-2.11.1.jar
+set antlrjar=%jlib%\antlr4-4.11.1.jar
+set arntmjar=%jlib%\antlr4-runtime-4.11.1.jar
+set arnt3jar=%jlib%\antlr-runtime-3.5.3.jar
+set sttmpjar=%jlib%\ST4-4.3.4.jar
+set xvisitor=%jlib%\xvisitor-4.8.0.jar
+set log4japi=%jlib%\log4j-api-2.19.0.jar
+set log4jcor=%jlib%\log4j-core-2.19.0.jar
 
 set CLASSPATH=%arnt3jar%;%arntmjar%;%sttmpjar%;%antlrjar%;%xvisitor%;%log4japi%;%log4jcor%;%bin%;%CLASSPATH%
 

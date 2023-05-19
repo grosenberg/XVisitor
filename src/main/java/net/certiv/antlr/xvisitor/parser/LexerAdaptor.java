@@ -53,7 +53,7 @@ public abstract class LexerAdaptor extends Lexer {
 
 	/**
 	 * Predicate qualifier for default mode block comments - necessary to
-	 * distinguish from the '/*' separator & wildcard combination
+	 * distinguish from the '/*' separator and wildcard combination
 	 * 
 	 * @return true if block comment allowed
 	 */

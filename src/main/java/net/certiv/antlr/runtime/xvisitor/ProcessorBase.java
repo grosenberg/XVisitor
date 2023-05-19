@@ -1,8 +1,8 @@
 /*******************************************************************************
- * Copyright (c) 2010-2015 Gerald Rosenberg & others. All rights reserved.
- * 
- * This program and the accompanying materials are made available under the 
- * terms of the standard 3-clause BSD License.  A copy of the License 
+ * Copyright (c) 2010-2023 Gerald Rosenberg & others. All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the standard 3-clause BSD License.  A copy of the License
  * is provided with this distribution in the License.txt file.
  *******************************************************************************/
 package net.certiv.antlr.runtime.xvisitor;
@@ -25,7 +25,7 @@ import net.certiv.antlr.runtime.xvisitor.util.Reflect;
 
 /**
  * Implements a simple walker that will visit all nodes in the given parse tree.
- * 
+ *
  * @author Gbr
  */
 public abstract class ProcessorBase extends ParseTreeWalker implements ParseTreeListener {
@@ -72,27 +72,30 @@ public abstract class ProcessorBase extends ParseTreeWalker implements ParseTree
 	// Context related methods
 
 	/**
-	 * Returns a list of parse tree path nodes evaluated in the current path. By default, this is
-	 * just the non-wildcard'd nodes, <i>i.e.</i>, just the nodes symbolically identified in the
-	 * rule path specification. If {@link Processor#keepAllPathContexts(boolean keep) is set, then
-	 * all path nodes are recorded, and the result will be equivalent to Processor#ancestors()}.
+	 * Returns a list of parse tree path nodes evaluated in the current path. By
+	 * default, this is just the non-wildcard'd nodes, <i>i.e.</i>, just the nodes
+	 * symbolically identified in the rule path specification. If
+	 * {@link Processor#keepAllPathContexts(boolean keep) is set, then all path
+	 * nodes are recorded, and the result will be equivalent to
+	 * Processor#ancestors()}.
 	 */
 	public List<ParseTree> pathNodes() {
 		return currentPathNodeList;
 	}
 
 	/**
-	 * Returns the current context node. All path nodes are type ParseTree. The last path node may
-	 * be an instance of either a TerminalNode or a ParserRuleContext. All nodes in the parent chain
-	 * starting from the last path node will be instances of ParserRuleContext.
+	 * Returns the current context node. All path nodes are type ParseTree. The last
+	 * path node may be an instance of either a TerminalNode or a ParserRuleContext.
+	 * All nodes in the parent chain starting from the last path node will be
+	 * instances of ParserRuleContext.
 	 */
 	public ParseTree lastPathNode() {
 		return currentPathNodeList.get(0);
 	}
 
 	/**
-	 * Returns the parent chain of parse-tree node ancestors starting with the current node and
-	 * ending at the root node, inclusive.
+	 * Returns the parent chain of parse-tree node ancestors starting with the
+	 * current node and ending at the root node, inclusive.
 	 */
 	public List<ParseTree> ancestors() {
 		List<ParseTree> ancList = new ArrayList<>();
@@ -105,10 +108,10 @@ public abstract class ProcessorBase extends ParseTreeWalker implements ParseTree
 	}
 
 	/**
-	 * Returns whether a parse tree node of any of the given ruleIndex corresponding types exists as
-	 * an ancestor of the current node. The rule indexes are defined as static constants in the
-	 * generated visitor. By convention, the constant names are the same as the names of the
-	 * corresponding grammar rules.
+	 * Returns whether a parse tree node of any of the given ruleIndex corresponding
+	 * types exists as an ancestor of the current node. The rule indexes are defined
+	 * as static constants in the generated visitor. By convention, the constant
+	 * names are the same as the names of the corresponding grammar rules.
 	 */
 	public boolean hasAncestor(int... ruleIndexes) {
 		if (ruleIndexes.length == 0) return false;
@@ -125,8 +128,8 @@ public abstract class ProcessorBase extends ParseTreeWalker implements ParseTree
 	}
 
 	/**
-	 * Returns whether the current node exists before a sibling parse tree node of any of the given
-	 * ruleIndex corresponding types.
+	 * Returns whether the current node exists before a sibling parse tree node of
+	 * any of the given ruleIndex corresponding types.
 	 */
 	public boolean beforeSibling(int... indexes) {
 		ParseTree node = lastPathNode();
@@ -147,8 +150,8 @@ public abstract class ProcessorBase extends ParseTreeWalker implements ParseTree
 	}
 
 	/**
-	 * Returns whether the current node exists after a sibling parse tree node of any of the given
-	 * ruleIndex corresponding types.
+	 * Returns whether the current node exists after a sibling parse tree node of
+	 * any of the given ruleIndex corresponding types.
 	 */
 	public boolean afterSibling(int... indexes) {
 		ParseTree node = lastPathNode();
@@ -203,12 +206,13 @@ public abstract class ProcessorBase extends ParseTreeWalker implements ParseTree
 	protected abstract String[] getRuleNames();
 
 	/**
-	 * Returns a non-null list of the ParserRuleContext nodes of the given class type that are
-	 * children of the current context. <br/>
-	 * <br/>
-	 * If the current context is not a ParserRuleContext node, an empty list is returned.
-	 * 
-	 * @param ruleType
+	 * Returns a non-null list of the ParserRuleContext nodes of the given class
+	 * type that are children of the current context.
+	 * <p>
+	 * If the current context is not a ParserRuleContext node, an empty list is
+	 * returned.
+	 *
+	 * @param ctxType
 	 * @return
 	 */
 	public <T extends ParserRuleContext> List<T> getNodes(Class<? extends T> ctxType) {
@@ -225,11 +229,11 @@ public abstract class ProcessorBase extends ParseTreeWalker implements ParseTree
 	}
 
 	/**
-	 * Returns a parse-tree node list from a label field having the given field name in the current
-	 * context. <br/>
+	 * Returns a parse-tree node list from a label field having the given field name
+	 * in the current context. <br/>
 	 * <br/>
 	 * If the field is not a List<ParserRuleContext>, an empty list is returned.
-	 * 
+	 *
 	 * @param fieldName
 	 * @return
 	 */
@@ -239,12 +243,13 @@ public abstract class ProcessorBase extends ParseTreeWalker implements ParseTree
 		try {
 			return (List<T>) Reflect.get(ctx, fieldName);
 		} catch (NoSuchFieldException | ClassCastException e) {}
-		return new ArrayList<T>();
+		return new ArrayList<>();
 	}
 
 	/**
-	 * Returns a parse-tree node from a label field having the given field name in the current
-	 * context. If the field does not exist or is not a ParseTree, null is returned.
+	 * Returns a parse-tree node from a label field having the given field name in
+	 * the current context. If the field does not exist or is not a ParseTree, null
+	 * is returned.
 	 */
 	public ParseTree getNode(String fieldName) {
 		ParseTree ctx = lastPathNode();
@@ -283,15 +288,16 @@ public abstract class ProcessorBase extends ParseTreeWalker implements ParseTree
 	}
 
 	/**
-	 * Returns a non-null list of the symbols from the children of the current context having the
-	 * given token type. <br/>
+	 * Returns a non-null list of the symbols from the children of the current
+	 * context having the given token type. <br/>
 	 * <br/>
-	 * Where the current context is a parse-tree node of type TerminalNode, an empty list is
-	 * returned. <br/>
+	 * Where the current context is a parse-tree node of type TerminalNode, an empty
+	 * list is returned. <br/>
 	 * <br/>
-	 * Where the current context is a parse-tree node of type ParserRuleContext, the symbols are
-	 * collected from the child TerminalNodes having the given token type.
-	 * 
+	 * Where the current context is a parse-tree node of type ParserRuleContext, the
+	 * symbols are collected from the child TerminalNodes having the given token
+	 * type.
+	 *
 	 * @param ttype
 	 * @return
 	 */
@@ -312,11 +318,11 @@ public abstract class ProcessorBase extends ParseTreeWalker implements ParseTree
 	}
 
 	/**
-	 * Returns a token list from a label field having the given field name in the current context.
-	 * <br/>
+	 * Returns a token list from a label field having the given field name in the
+	 * current context. <br/>
 	 * <br/>
 	 * If the field is not a List<ParserRuleContext>, an empty list is returned.
-	 * 
+	 *
 	 * @param fieldName
 	 * @return
 	 */
@@ -326,19 +332,20 @@ public abstract class ProcessorBase extends ParseTreeWalker implements ParseTree
 		try {
 			return (List<Token>) Reflect.get(ctx, fieldName);
 		} catch (NoSuchFieldException | ClassCastException e) {}
-		return new ArrayList<Token>();
+		return new ArrayList<>();
 	}
 
 	/**
-	 * Returns the symbol from the current context having the given token type. The 'cnt' determines
-	 * the zero-relative instance of the symbol to select. <br/>
+	 * Returns the symbol from the current context having the given token type. The
+	 * 'cnt' determines the zero-relative instance of the symbol to select. <br/>
 	 * <br/>
-	 * Where the current context is a parse-tree node of type TerminalNode, the symbol is the
-	 * TerminalNode token. Only a 'cnt' value of 0 is allowed.<br/>
+	 * Where the current context is a parse-tree node of type TerminalNode, the
+	 * symbol is the TerminalNode token. Only a 'cnt' value of 0 is allowed.<br/>
 	 * <br/>
-	 * Where the current context is a parse-tree node of type ParserRuleContext, the symbol is
-	 * selected from the 'cnt'th child TerminalNode having the given token type.
-	 * 
+	 * Where the current context is a parse-tree node of type ParserRuleContext, the
+	 * symbol is selected from the 'cnt'th child TerminalNode having the given token
+	 * type.
+	 *
 	 * @param ttype
 	 * @param cnt
 	 * @return
@@ -364,10 +371,11 @@ public abstract class ProcessorBase extends ParseTreeWalker implements ParseTree
 	}
 
 	/**
-	 * Returns a token from a label field having the given field name in the current context.<br/>
+	 * Returns a token from a label field having the given field name in the current
+	 * context.<br/>
 	 * <br/>
 	 * If the field is not a Token, null is returned.
-	 * 
+	 *
 	 * @param fieldName
 	 * @return
 	 */

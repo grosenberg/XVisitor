@@ -1,0 +1,6 @@
+/target/
+/.settings
+
+/pom.nexus.xml
+/**/attic
+/**/*.jar

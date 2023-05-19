@@ -44,7 +44,7 @@ import net.certiv.antlr.xvisitor.tool.Messages;
 
 public class Tool implements ITool, IToolListener {
 
-	public static final String VERSION = "4.7.1";
+	public static final String VERSION = "4.8.0";
 	public static final String GRAMMAR_EXTENSION = ".xv";
 	public static final String MSG_FORMAT = "antlr";
 	public static final Token INVALID_TOKEN = new CommonToken(Token.INVALID_TYPE);

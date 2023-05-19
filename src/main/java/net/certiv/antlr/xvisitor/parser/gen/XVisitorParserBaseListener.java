@@ -1,4 +1,4 @@
-// Generated from D:/DevFiles/Eclipse/Tools/XVisitor/net.certiv.xvisitor/src/main/java/net/certiv/antlr/xvisitor/parser/XVisitorParser.g4 by ANTLR 4.8
+// Generated from java-escape by ANTLR 4.11.1
 
 	package net.certiv.antlr.xvisitor.parser.gen;
 
@@ -12,6 +12,7 @@ import org.antlr.v4.runtime.tree.TerminalNode;
  * which can be extended to create a listener which only needs to handle a subset
  * of the available methods.
  */
+@SuppressWarnings("CheckReturnValue")
 public class XVisitorParserBaseListener implements XVisitorParserListener {
 	/**
 	 * {@inheritDoc}

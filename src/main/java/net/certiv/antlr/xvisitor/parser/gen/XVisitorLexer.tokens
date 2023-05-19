@@ -29,3 +29,6 @@ ABLOCK_RBRACE=28
 ONENTRY=29
 ONEXIT=30
 REFERENCE=31
+'options'=7
+'grammar'=9
+'xvisitor'=10
