@@ -1,4 +1,4 @@
-// Generated from java-escape by ANTLR 4.11.1
+// Generated from D:/DevFiles/Eclipse/Tools/XVisitor/net.certiv.xvisitor/src/main/java/net/certiv/antlr/xvisitor/parser/XVisitorLexer.g4 by ANTLR 4.12.0
 
 	package net.certiv.antlr.xvisitor.parser.gen;
 	import net.certiv.antlr.xvisitor.parser.LexerAdaptor;
@@ -14,7 +14,7 @@ import org.antlr.v4.runtime.misc.*;
 
 @SuppressWarnings({"all", "warnings", "unchecked", "unused", "cast", "CheckReturnValue"})
 public class XVisitorLexer extends LexerAdaptor {
-	static { RuntimeMetaData.checkVersion("4.11.1", RuntimeMetaData.VERSION); }
+	static { RuntimeMetaData.checkVersion("4.12.0", RuntimeMetaData.VERSION); }
 
 	protected static final DFA[] _decisionToDFA;
 	protected static final PredictionContextCache _sharedContextCache =
@@ -56,8 +56,6 @@ public class XVisitorLexer extends LexerAdaptor {
 
 	private static String[] makeLiteralNames() {
 		return new String[] {
-			null, null, null, null, null, null, null, "'options'", null, "'grammar'", 
-			"'xvisitor'"
 		};
 	}
 	private static final String[] _LITERAL_NAMES = makeLiteralNames();

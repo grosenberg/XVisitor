@@ -8,7 +8,7 @@
 
 	<groupId>net.certiv</groupId>
 	<artifactId>xvisitor</artifactId>
-	<version>4.8.0</version>
+	<version>4.8.1</version>
 
 	<name>XVisitor</name>
 	<description>Antlr XVisitor Tool and Runtime</description>
@@ -43,7 +43,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-		<jdk.version>11</jdk.version>
+		<jdk.version>17</jdk.version>
 		<maven.compiler.source>${jdk.version}</maven.compiler.source>
 		<maven.compiler.target>${jdk.version}</maven.compiler.target>
 

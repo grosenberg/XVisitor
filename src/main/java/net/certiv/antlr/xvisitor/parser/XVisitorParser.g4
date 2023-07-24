@@ -16,7 +16,7 @@ options {
 }
 
 grammarSpec
-    :   XVISITOR GRAMMAR ID SEMI 
+    :   XVISITOR GRAMMAR ID SEMI
     	optionsSpec?
     	action*
     	xgroup*
